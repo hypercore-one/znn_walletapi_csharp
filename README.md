@@ -12,12 +12,12 @@ A .NET based Wallet API for interacting with Zenon Alphanet - Network of Momentu
 
 ## Build on Linux
 
-``` 
+``` bash
 sudo apt-get update && sudo apt-get install -y dotnet8
 
 git clone https://github.com/hypercore-one/znn_walletapi_csharp.git
 
-cd znn_walletapi_csharp/src/ZenonWalletApi`
+cd znn_walletapi_csharp/src/ZenonWalletApi
 
 export Api__Jwt__Secret=""
 export Api__Utilities__PlasmaBot__ApiKey=""

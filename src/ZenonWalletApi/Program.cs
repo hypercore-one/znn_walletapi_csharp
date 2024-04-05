@@ -213,7 +213,7 @@ root.RequireAuthorization();
 #region Users Endpoints
 
 var usersGroup = root.MapGroup("/users")
-    .WithTags("users");
+    .WithTags("Users");
 
 usersGroup.MapPost("/authenticate", async (
     [FromServices] IUserService users,
@@ -228,6 +228,8 @@ usersGroup.MapPost("/authenticate", async (
 
     return Results.Ok(result!);
 })
+    .WithName("AuthenticateUser")
+    .WithDescription("Authenticates an user")
     .Produces<AuthenticateResponse>(StatusCodes.Status200OK)
     .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
     .ProducesValidationProblem()
@@ -238,13 +240,15 @@ usersGroup.MapPost("/authenticate", async (
 #region Wallet Endpoints
 
 var walletGroup = root.MapGroup("/wallet")
-    .WithTags("wallet");
+    .WithTags("Wallet");
 
 walletGroup.MapGet("/status", (
     [FromServices] IWalletService service) =>
 {
     return new WalletStatusResponse(service.IsInitialized, service.IsUnlocked);
 })
+    .WithName("GetWalletStatus")
+    .WithDescription("Gets the wallet status indicating whether the wallet is initialized and unlocked")
     .Produces<WalletStatusResponse>()
     .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
     .Produces(StatusCodes.Status403Forbidden, typeof(string), contentType: "text/plain")
@@ -258,6 +262,8 @@ walletGroup.MapPost("/{accountIndex}/address", async (
 
     return new WalletAccountAddressResponse(address);
 })
+    .WithName("GetWalletAccountAddress")
+    .WithDescription("Gets the wallet account address by account index")
     .Produces<WalletAccountAddressResponse>()
     .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
     .Produces(StatusCodes.Status403Forbidden, typeof(string), contentType: "text/plain")
@@ -273,6 +279,8 @@ walletGroup.MapPost("/init", async (
 
     return new InitWalletResponse(mnemonic);
 })
+    .WithName("InitializeWallet")
+    .WithDescription("Initializes a new wallet")
     .Produces<InitWalletResponse>()
     .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
     .Produces(StatusCodes.Status403Forbidden, typeof(string), contentType: "text/plain")
@@ -288,6 +296,8 @@ walletGroup.MapPost("/restore", async (
 
     return Results.Ok();
 })
+    .WithName("RestoreWallet")
+    .WithDescription("Restores an existing wallet")
     .Produces(StatusCodes.Status200OK, typeof(string), contentType: "text/plain")
     .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
     .Produces(StatusCodes.Status403Forbidden, typeof(string), contentType: "text/plain")
@@ -303,6 +313,8 @@ walletGroup.MapPost("/unlock", async (
 
     return Results.Ok();
 })
+    .WithName("UnlockWallet")
+    .WithDescription("Unlocks the wallet")
     .Produces(StatusCodes.Status200OK, typeof(string), contentType: "text/plain")
     .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
     .Produces(StatusCodes.Status403Forbidden, typeof(string), contentType: "text/plain")
@@ -317,6 +329,8 @@ walletGroup.MapPost("/lock", async (
 
     return Results.Ok();
 })
+    .WithName("LockWallet")
+    .WithDescription("Locks the wallet")
     .Produces(StatusCodes.Status200OK, typeof(string), contentType: "text/plain")
     .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
     .Produces(StatusCodes.Status403Forbidden, typeof(string), contentType: "text/plain")
@@ -327,7 +341,7 @@ walletGroup.MapPost("/lock", async (
 #region Ledger Endpoints
 
 var ledgerGroup = root.MapGroup("/ledger")
-    .WithTags("ledger")
+    .WithTags("Ledger")
     .RequireAuthorization("User");
 
 ledgerGroup.MapGet("/{address}/balances", async (
@@ -340,6 +354,8 @@ ledgerGroup.MapGet("/{address}/balances", async (
 
     return result.ToJson();
 })
+    .WithName("GetAccountInfo")
+    .WithDescription("Gets the account height and token balances by address")
     .Produces<JAccountInfo>(StatusCodes.Status200OK)
     .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
     .Produces(StatusCodes.Status403Forbidden, typeof(string), contentType: "text/plain")
@@ -362,6 +378,8 @@ ledgerGroup.MapGet("/{address}/received", async (
 
     return result.ToJson();
 })
+    .WithName("GetReceivedAccountBlocks")
+    .WithDescription("Gets the received account blocks by address")
     .Produces<JAccountBlockList>(StatusCodes.Status200OK)
     .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
     .Produces(StatusCodes.Status403Forbidden, typeof(string), contentType: "text/plain")
@@ -384,6 +402,8 @@ ledgerGroup.MapGet("/{address}/unreceived", async (
 
     return result.ToJson();
 })
+    .WithName("GetUnreceivedAccountBlocks")
+    .WithDescription("Gets the unreceived account blocks by address")
     .Produces<JAccountBlockList>(StatusCodes.Status200OK)
     .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
     .Produces(StatusCodes.Status403Forbidden, typeof(string), contentType: "text/plain")
@@ -401,6 +421,8 @@ ledgerGroup.MapGet("{address}/plasma", async (
 
     return result.ToJson();
 })
+    .WithName("GetPlasmaInfo")
+    .WithDescription("Gets the current plasma, max plasma and fused qsr amount of the supplied address")
     .Produces<JPlasmaInfo>(StatusCodes.Status200OK)
     .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
     .Produces(StatusCodes.Status403Forbidden, typeof(string), contentType: "text/plain")
@@ -430,6 +452,8 @@ ledgerGroup.MapGet("/{address}/fused", async (
 
     return json;
 })
+    .WithName("GetFusionInfo")
+    .WithDescription("Gets the fusion entries of the supplied address")
     .Produces<JFusionEntryList>(StatusCodes.Status200OK)
     .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
     .Produces(StatusCodes.Status403Forbidden, typeof(string), contentType: "text/plain")
@@ -441,7 +465,7 @@ ledgerGroup.MapGet("/{address}/fused", async (
 #region Transfer Endpoints
 
 var transferGroup = root.MapGroup("/transfer")
-    .WithTags("transfer")
+    .WithTags("Transfer")
     .RequireAuthorization("User");
 
 transferGroup.MapPost("/{accountIndex}/send", async (
@@ -510,6 +534,8 @@ transferGroup.MapPost("/{accountIndex}/send", async (
     // Return block hash
     return response.ToJson();
 })
+    .WithName("SendTransfer")
+    .WithDescription("Sends tokens to an address")
     .Produces<JAccountBlockTemplate>(StatusCodes.Status200OK)
     .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
     .Produces(StatusCodes.Status403Forbidden, typeof(string), contentType: "text/plain")
@@ -538,6 +564,8 @@ transferGroup.MapPost("/{accountIndex}/receive", async (
 
     return response.ToJson();
 })
+    .WithName("ReceiveTransfer")
+    .WithDescription("Manually receives an account block by block hash")
     .Produces<JAccountBlockTemplate>(StatusCodes.Status200OK)
     .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
     .Produces(StatusCodes.Status403Forbidden, typeof(string), contentType: "text/plain")
@@ -550,7 +578,7 @@ transferGroup.MapPost("/{accountIndex}/receive", async (
 #region Plasma Endpoints
 
 var plasmaGroup = root.MapGroup("/plasma")
-    .WithTags("plasma")
+    .WithTags("Plasma")
     .RequireAuthorization("User");
 
 plasmaGroup.MapPost("/{accountIndex}/fuse", async (
@@ -577,6 +605,8 @@ plasmaGroup.MapPost("/{accountIndex}/fuse", async (
 
     return response.ToJson();
 })
+    .WithName("FusePlasma")
+    .WithDescription("Fuses QSR to an address to generate plasma")
     .Produces<JAccountBlockTemplate>(StatusCodes.Status200OK)
     .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
     .Produces(StatusCodes.Status403Forbidden, typeof(string), contentType: "text/plain")
@@ -606,6 +636,8 @@ plasmaGroup.MapPost("/{accountIndex}/cancel", async (
 
     return response.ToJson();
 })
+    .WithName("CancelPlasma")
+    .WithDescription("Cancels a plasma fusion and receive the QSR back")
     .Produces<JAccountBlockTemplate>(StatusCodes.Status200OK)
     .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
     .Produces(StatusCodes.Status403Forbidden, typeof(string), contentType: "text/plain")
@@ -618,7 +650,7 @@ plasmaGroup.MapPost("/{accountIndex}/cancel", async (
 #region AutoReceive
 
 var autoreceiveGroup = root.MapGroup("/autoreceiver")
-    .WithTags("autoreceiver")
+    .WithTags("Autoreceiver")
     .RequireAuthorization("User");
 
 autoreceiveGroup.MapPut("/{accountIndex}", async (
@@ -629,6 +661,8 @@ autoreceiveGroup.MapPut("/{accountIndex}", async (
 
     return Results.Ok();
 })
+    .WithName("SubscribeAccount")
+    .WithDescription("Subscribes an account to auto receive account blocks")
     .Produces(StatusCodes.Status200OK, typeof(string), contentType: "text/plain")
     .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
     .Produces(StatusCodes.Status403Forbidden, typeof(string), contentType: "text/plain")
@@ -644,6 +678,8 @@ autoreceiveGroup.MapDelete("/{accountIndex}", async (
 
     return Results.Ok();
 })
+    .WithName("UnsubscribeAccount")
+    .WithDescription("Unsubscribes an account from auto receiving account blocks")
     .Produces(StatusCodes.Status200OK, typeof(string), contentType: "text/plain")
     .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
     .Produces(StatusCodes.Status403Forbidden, typeof(string), contentType: "text/plain")
@@ -655,7 +691,7 @@ autoreceiveGroup.MapDelete("/{accountIndex}", async (
 #region Utilities
 
 var utilsGroup = root.MapGroup("/utilities")
-    .WithTags("utilities")
+    .WithTags("Utilities")
     .RequireAuthorization("User");
 
 utilsGroup.MapPost("/plasma-bot/fuse", async (
@@ -664,6 +700,8 @@ utilsGroup.MapPost("/plasma-bot/fuse", async (
 {
     return await plasmaBot.FuseAsync(request.address);
 })
+    .WithName("FuseBotPlasma")
+    .WithDescription("Fuses QSR to an address to generate plasma using the community plasma-bot")
     .Produces(StatusCodes.Status200OK, typeof(string), contentType: "text/plain")
     .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
     .Produces(StatusCodes.Status403Forbidden, typeof(string), contentType: "text/plain")
