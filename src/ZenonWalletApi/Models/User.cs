@@ -9,6 +9,6 @@ namespace ZenonWalletApi.Models
         [JsonIgnore]
         public required string PasswordHash { get; set; }
         public required string[] Roles { get; set; }
-        public bool IsActive { get; set; }
+        public bool IsActive { get; set; } = true;
     }
 }

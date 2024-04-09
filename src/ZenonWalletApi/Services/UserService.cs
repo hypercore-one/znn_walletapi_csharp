@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
+using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using ZenonWalletApi.Models;
@@ -16,6 +17,7 @@ namespace ZenonWalletApi.Services
     {
         public const string Api = "Api";
 
+        [Required]
         public required IEnumerable<User> Users { get; set; }
     }
 
