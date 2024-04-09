@@ -40,7 +40,7 @@ namespace ZenonWalletApi.Services
 
         private ConcurrentDictionary<string, int> AddressMap { get; } = new ConcurrentDictionary<string, int>();
         private ConcurrentQueue<Hash> Queue { get; } = new ConcurrentQueue<Hash>();
-        
+
         private ILogger<AutoReceiverService> Logger { get; }
         private AutoReceiveOptions Options { get; }
         private IWalletService Wallet { get; }

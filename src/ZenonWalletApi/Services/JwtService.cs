@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -15,14 +17,15 @@ namespace ZenonWalletApi.Services
     {
         public const string Jwt = "Api:Jwt";
 
+        [Required]
         public required string Secret { get; set; }
-
-        public required string ValidIssuer { get; set; }
-
-        public required string ValidAudience { get; set; }
-
+        [Required]
+        public required string ValidIssuer { get; set; } = "zenon.wallet.api";
+        [Required]
+        public required string ValidAudience { get; set; } = "zenon.network";
+        [AllowNull]
         public DateTime? ExpiresOn { get; set; }
-
+        [AllowNull]
         public TimeSpan? ExpiresAfter { get; set; }
     }
 

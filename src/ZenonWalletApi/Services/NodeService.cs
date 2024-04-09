@@ -27,12 +27,12 @@ namespace ZenonWalletApi.Services
         public const string Node = "Api:Node";
 
         [Required]
-        public string NodeUrl { get; set; } = "ws://127.0.0.1:35998";
+        public required string NodeUrl { get; set; } = "ws://127.0.0.1:35998";
         [Required]
-        public int ChainId { get; set; } = Constants.ChainId;
+        public required int ChainId { get; set; } = Constants.ChainId;
         [Required]
-        public int ProtocolVersion { get; set; } = Constants.ProtocolVersion;
-
+        public required int ProtocolVersion { get; set; } = Constants.ProtocolVersion;
+        [Range(1, 100)]
         public int MaxPoWThreads { get; set; } = 5;
     }
 
@@ -118,11 +118,11 @@ namespace ZenonWalletApi.Services
                 try
                 {
                     semaphore.WaitOne();
-                    
+
                     AutoLocker.Suspend();
-                    
+
                     var result = await Api.SendAsync(block, account, GeneratingPoW);
-                    
+
                     Logger.LogInformation($"Send block: {result.Hash}");
 
                     // Release the lock after 1 second.
@@ -132,7 +132,7 @@ namespace ZenonWalletApi.Services
                     await Task.Delay(1000);
 
                     AutoLocker.Resume();
-                    
+
                     return result;
                 }
                 finally

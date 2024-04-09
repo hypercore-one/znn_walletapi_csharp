@@ -16,6 +16,7 @@ namespace ZenonWalletApi.Services
         public const string AutoLocker = "Api:AutoLocker";
 
         public bool Enabled { get; set; } = true;
+
         public TimeSpan LockTimeout { get; set; } = TimeSpan.FromMinutes(5);
     }
 

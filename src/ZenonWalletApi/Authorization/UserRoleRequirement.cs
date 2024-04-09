@@ -4,7 +4,7 @@ namespace ZenonWalletApi.Authorization
 {
     public class UserRoleRequirement : IAuthorizationRequirement
     {
-        public UserRoleRequirement(params string[] roles) 
+        public UserRoleRequirement(params string[] roles)
         {
             Roles = roles;
         }
