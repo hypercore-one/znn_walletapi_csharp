@@ -12,8 +12,10 @@ using Zenon.Wallet;
 
 namespace ZenonWalletApi.Services
 {
-    public interface IAutoReceiveService : IHostedService, IDisposable
+    public interface IAutoReceiverService : IHostedService, IDisposable
     {
+        bool IsEnabled { get; }
+
         Task SubscribeAsync(int accountIndex);
 
         Task UnsubscribeAsync(int accountIndex);
@@ -26,9 +28,9 @@ namespace ZenonWalletApi.Services
         public bool Enabled { get; set; } = true;
     }
 
-    public class AutoReceiveService : BackgroundService, IAutoReceiveService
+    public class AutoReceiverService : BackgroundService, IAutoReceiverService
     {
-        public AutoReceiveService(ILogger<AutoReceiveService> logger, IOptions<AutoReceiveOptions> options, IWalletService wallet, INodeService node)
+        public AutoReceiverService(ILogger<AutoReceiverService> logger, IOptions<AutoReceiveOptions> options, IWalletService wallet, INodeService node)
         {
             Options = options.Value;
             Logger = logger;
@@ -39,10 +41,12 @@ namespace ZenonWalletApi.Services
         private ConcurrentDictionary<string, int> AddressMap { get; } = new ConcurrentDictionary<string, int>();
         private ConcurrentQueue<Hash> Queue { get; } = new ConcurrentQueue<Hash>();
         
-        private ILogger<AutoReceiveService> Logger { get; }
+        private ILogger<AutoReceiverService> Logger { get; }
         private AutoReceiveOptions Options { get; }
         private IWalletService Wallet { get; }
         private INodeService Node { get; }
+
+        public bool IsEnabled => Options.Enabled;
 
         public async Task SubscribeAsync(int accountIndex)
         {

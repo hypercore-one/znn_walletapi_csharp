@@ -65,11 +65,11 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddTransient<INodeService, NodeService>();
 builder.Services.AddSingleton<IWalletService, WalletService>();
-builder.Services.AddSingleton<IAutoReceiveService, AutoReceiveService>();
+builder.Services.AddSingleton<IAutoReceiverService, AutoReceiverService>();
 builder.Services.AddSingleton<IAutoLockService, AutoLockService>();
 
 builder.Services.AddHostedService(p => p.GetRequiredService<IWalletService>());
-builder.Services.AddHostedService(p => p.GetRequiredService<IAutoReceiveService>());
+builder.Services.AddHostedService(p => p.GetRequiredService<IAutoReceiverService>());
 builder.Services.AddHostedService(p => p.GetRequiredService<IAutoLockService>());
 
 builder.Services.AddSingleton<IAuthorizationHandler, UserRoleRequirementAuthorizationHandler>();
@@ -647,14 +647,26 @@ plasmaGroup.MapPost("/{accountIndex}/cancel", async (
 
 #endregion
 
-#region AutoReceive
+#region AutoReceiver Endpoints
 
-var autoreceiveGroup = root.MapGroup("/autoreceiver")
-    .WithTags("Autoreceiver")
+var autoReceiverGroup = root.MapGroup("/auto-receiver")
+    .WithTags("AutoReceiver")
     .RequireAuthorization("User");
 
-autoreceiveGroup.MapPut("/{accountIndex}", async (
-    [FromServices] IAutoReceiveService autoReceiver,
+autoReceiverGroup.MapGet("/status", (
+    [FromServices] IAutoReceiverService service) =>
+{
+    return new AutoReceiverStatusResponse(service.IsEnabled);
+})
+    .WithName("GetAutoReceiverStatus")
+    .WithDescription("Gets the auto-receiver status indicating whether the service is enabled")
+    .Produces<AutoReceiverStatusResponse>()
+    .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
+    .Produces(StatusCodes.Status403Forbidden, typeof(string), contentType: "text/plain")
+    .RequireAuthorization("User");
+
+autoReceiverGroup.MapPut("/{accountIndex}", async (
+    [FromServices] IAutoReceiverService autoReceiver,
     [Validate] AccountIndex accountIndex) =>
 {
     await autoReceiver.SubscribeAsync(accountIndex.value);
@@ -670,8 +682,8 @@ autoreceiveGroup.MapPut("/{accountIndex}", async (
     .ProducesProblem(StatusCodes.Status409Conflict)
     .ProducesValidationProblem();
 
-autoreceiveGroup.MapDelete("/{accountIndex}", async (
-    [FromServices] IAutoReceiveService autoReceiver,
+autoReceiverGroup.MapDelete("/{accountIndex}", async (
+    [FromServices] IAutoReceiverService autoReceiver,
     [Validate] AccountIndex accountIndex) =>
 {
     await autoReceiver.UnsubscribeAsync(accountIndex.value);
@@ -688,7 +700,7 @@ autoreceiveGroup.MapDelete("/{accountIndex}", async (
 
 #endregion
 
-#region Utilities
+#region Utilities EndPoints
 
 var utilsGroup = root.MapGroup("/utilities")
     .WithTags("Utilities")
