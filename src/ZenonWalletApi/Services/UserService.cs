@@ -38,12 +38,12 @@ namespace ZenonWalletApi.Services
 
         public async Task<AuthenticateResponse?> AuthenticateAsync(AuthenticateRequest request)
         {
-            Logger.LogInformation($"Authenticate: {request.Username}");
+            Logger.LogInformation($"Authenticate: {request.username}");
 
             var user = Options.Users.FirstOrDefault(x => x.IsActive &&
-                string.Equals(x.Username, request.Username, StringComparison.OrdinalIgnoreCase));
+                string.Equals(x.Username, request.username, StringComparison.OrdinalIgnoreCase));
 
-            if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+            if (user == null || !BCrypt.Net.BCrypt.Verify(request.password, user.PasswordHash))
                 return null;
 
             var authClaims = new List<Claim>
