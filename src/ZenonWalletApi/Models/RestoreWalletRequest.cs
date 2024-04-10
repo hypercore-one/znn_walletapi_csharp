@@ -1,21 +1,27 @@
 ﻿using FluentValidation;
-using Zenon.Wallet.BIP39;
+using System.ComponentModel.DataAnnotations;
 using ZenonWalletApi.Models.Validators;
 
 namespace ZenonWalletApi.Models
 {
-    public record RestoreWalletRequest(
-        string password, string mnemonic)
+    public record RestoreWalletRequest
     {
+        [Required]
+        [MinLength(8), MaxLength(255)]
+        public required string Password { get; set; }
+
+        [Required]
+        public required string Mnemonic { get; set; }
+
         public class Validator : AbstractValidator<RestoreWalletRequest>
         {
             public Validator()
             {
-                RuleFor(x => x.password)
+                RuleFor(x => x.Password)
                     .WalletPassword();
-                RuleFor(x => x.mnemonic)
+                RuleFor(x => x.Mnemonic)
                     .NotEmpty()
-                    .Must(value => new Zenon.Wallet.BIP39.BIP39().ValidateMnemonic(value, BIP39Wordlist.English));
+                    .Must(value => Zenon.Wallet.Mnemonic.ValidateMnemonic(value));
             }
         }
     }

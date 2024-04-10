@@ -38,12 +38,12 @@ namespace ZenonWalletApi.Services
 
         public async Task<AuthenticateResponse?> AuthenticateAsync(AuthenticateRequest request)
         {
-            Logger.LogInformation($"Authenticate: {request.username}");
+            Logger.LogInformation($"Authenticate: {request.Username}");
 
             var user = Options.Users.FirstOrDefault(x => x.IsActive &&
-                string.Equals(x.Username, request.username, StringComparison.OrdinalIgnoreCase));
+                string.Equals(x.Username, request.Username, StringComparison.OrdinalIgnoreCase));
 
-            if (user == null || !BCrypt.Net.BCrypt.Verify(request.password, user.PasswordHash))
+            if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
                 return null;
 
             var authClaims = new List<Claim>
@@ -59,7 +59,7 @@ namespace ZenonWalletApi.Services
 
             var token = await Jwt.GenerateJwtTokenAsync(authClaims);
 
-            return new AuthenticateResponse(user, token);
+            return new AuthenticateResponse(user.Id, user.Username, token);
         }
 
         public async Task<IEnumerable<User>> GetAllAsync()

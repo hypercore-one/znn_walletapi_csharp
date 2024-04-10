@@ -2,7 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Zenon.Model.Primitives;
 
-namespace ZenonWalletApi.Models
+namespace ZenonWalletApi.Models.Parameters
 {
     public record AddressString(Address value) : IParsable<AddressString>
     {

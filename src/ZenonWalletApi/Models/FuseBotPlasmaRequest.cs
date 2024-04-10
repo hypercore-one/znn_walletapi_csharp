@@ -1,15 +1,19 @@
 ﻿using FluentValidation;
+using System.ComponentModel.DataAnnotations;
 using Zenon.Model.Primitives;
 
 namespace ZenonWalletApi.Models
 {
-    public record FuseBotPlasmaRequest(Address address)
+    public record FuseBotPlasmaRequest
     {
+        [Required]
+        public required Address Address { get; set; }
+
         public class Validator : AbstractValidator<FuseBotPlasmaRequest>
         {
             public Validator()
             {
-                RuleFor(x => x.address).NotNull().NotEqual(Address.EmptyAddress);
+                RuleFor(x => x.Address).NotNull().NotEqual(Address.EmptyAddress);
             }
         }
     }

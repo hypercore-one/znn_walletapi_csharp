@@ -17,6 +17,7 @@ using ZenonWalletApi.Authorization;
 using ZenonWalletApi.Models;
 using ZenonWalletApi.Models.Converters;
 using ZenonWalletApi.Models.Exceptions;
+using ZenonWalletApi.Models.Parameters;
 using ZenonWalletApi.Services;
 using ZenonWalletApi.Services.ExceptionHandlers;
 
@@ -83,6 +84,7 @@ builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.Converters.Add(new TokenStandardJsonConverter());
     options.SerializerOptions.Converters.Add(new HashJsonConverter());
 });
+
 builder.Services.AddSwaggerGen(options =>
 {
     options.MapType<Address>(() => new OpenApiSchema { Type = "string" });
@@ -91,9 +93,9 @@ builder.Services.AddSwaggerGen(options =>
 
     options.SwaggerDoc("v1", new OpenApiInfo()
     {
-        Title = "Zenon Wallet API",
         Version = "v1",
-        Description = "Wallet API for Zenon Network",
+        Title = "Zenon Wallet API",
+        Description = "A .NET based cross-platform Wallet API for interacting with Zenon Alphanet - Network of Momentum Phase 1",
         Contact = new OpenApiContact()
         {
             Name = "Zenon Network",
@@ -275,7 +277,7 @@ walletGroup.MapPost("/init", async (
     [FromServices] IWalletService service,
     [Validate] InitWalletRequest request) =>
 {
-    var mnemonic = await service.InitAsync(request.password);
+    var mnemonic = await service.InitAsync(request.Password);
 
     return new InitWalletResponse(mnemonic);
 })
@@ -292,7 +294,7 @@ walletGroup.MapPost("/restore", async (
     [FromServices] IWalletService service,
     [Validate] RestoreWalletRequest request) =>
 {
-    await service.RestoreAsync(request.password, request.mnemonic);
+    await service.RestoreAsync(request.Password, request.Mnemonic);
 
     return Results.Ok();
 })
@@ -309,7 +311,7 @@ walletGroup.MapPost("/unlock", async (
     [FromServices] IWalletService service,
     [Validate] UnlockWalletRequest request) =>
 {
-    await service.UnlockAsync(request.password);
+    await service.UnlockAsync(request.Password);
 
     return Results.Ok();
 })
@@ -483,19 +485,19 @@ transferGroup.MapPost("/{accountIndex}/send", async (
     var address = await account.GetAddressAsync();
 
     BigInteger amount;
-    if (request.tokenStandard == TokenStandard.ZnnZts ||
-        request.tokenStandard == TokenStandard.QsrZts)
+    if (request.TokenStandard == TokenStandard.ZnnZts ||
+        request.TokenStandard == TokenStandard.QsrZts)
     {
-        amount = AmountUtils.ExtractDecimals(request.amount, Constants.CoinDecimals);
+        amount = AmountUtils.ExtractDecimals(request.Amount, Constants.CoinDecimals);
     }
     else
     {
-        var token = await client.Api.Embedded.Token.GetByZts(request.tokenStandard);
+        var token = await client.Api.Embedded.Token.GetByZts(request.TokenStandard);
         if (token == null)
         {
             throw new NotFoundException("Token does not exist");
         }
-        amount = AmountUtils.ExtractDecimals(request.amount, (int)token.Decimals);
+        amount = AmountUtils.ExtractDecimals(request.Amount, (int)token.Decimals);
     }
 
     // Retrieve account info
@@ -504,12 +506,12 @@ transferGroup.MapPost("/{accountIndex}/send", async (
 
     // Find balance info
     var balanceInfo = accountInfo.BalanceInfoList
-        .FirstOrDefault(x => x.Token.TokenStandard == request.tokenStandard);
+        .FirstOrDefault(x => x.Token.TokenStandard == request.TokenStandard);
 
     // Check balance
     if (balanceInfo == null)
     {
-        throw new NotFoundException($"You do not have any {request.tokenStandard} tokens");
+        throw new NotFoundException($"You do not have any {request.TokenStandard} tokens");
     }
     else if (balanceInfo.Balance < amount)
     {
@@ -526,7 +528,7 @@ transferGroup.MapPost("/{accountIndex}/send", async (
     // Create send block
     var block = AccountBlockTemplate.Send(
         client.ProtocolVersion, client.ChainIdentifier,
-        request.address, request.tokenStandard, amount);
+        request.Address, request.TokenStandard, amount);
 
     // Send block
     var response = await client.SendAsync(block, account);
@@ -557,7 +559,7 @@ transferGroup.MapPost("/{accountIndex}/receive", async (
     // Create receive block
     var block = AccountBlockTemplate.Receive(
         client.ProtocolVersion, client.ChainIdentifier,
-        request.blockHash);
+        request.BlockHash);
 
     // Send block
     var response = await client.SendAsync(block, account);
@@ -595,10 +597,10 @@ plasmaGroup.MapPost("/{accountIndex}/fuse", async (
     // Retrieve wallet account address
     var address = await account.GetAddressAsync();
 
-    var amount = AmountUtils.ExtractDecimals(request.amount, Constants.CoinDecimals);
+    var amount = AmountUtils.ExtractDecimals(request.Amount, Constants.CoinDecimals);
 
     // Create block
-    var block = client.Api.Embedded.Plasma.Fuse(request.address, amount);
+    var block = client.Api.Embedded.Plasma.Fuse(request.Address, amount);
 
     // Send block
     var response = await client.SendAsync(block, account);
@@ -629,7 +631,7 @@ plasmaGroup.MapPost("/{accountIndex}/cancel", async (
     var address = await account.GetAddressAsync();
 
     // Create block
-    var block = client.Api.Embedded.Plasma.Cancel(request.idHash);
+    var block = client.Api.Embedded.Plasma.Cancel(request.IdHash);
 
     // Send block
     var response = await client.SendAsync(block, account);
@@ -710,7 +712,7 @@ utilsGroup.MapPost("/plasma-bot/fuse", async (
     [FromServices] IPlasmaBotService plasmaBot,
     [FromBody][Validate] FuseBotPlasmaRequest request) =>
 {
-    return await plasmaBot.FuseAsync(request.address);
+    return await plasmaBot.FuseAsync(request.Address);
 })
     .WithName("FuseBotPlasma")
     .WithDescription("Fuses QSR to an address to generate plasma using the community plasma-bot")

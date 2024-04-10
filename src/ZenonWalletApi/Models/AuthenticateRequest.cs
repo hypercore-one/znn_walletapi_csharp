@@ -1,15 +1,22 @@
 ﻿using FluentValidation;
+using System.ComponentModel.DataAnnotations;
 
 namespace ZenonWalletApi.Models
 {
-    public record AuthenticateRequest(string username = "admin", string password = "admin")
+    public record AuthenticateRequest
     {
+        [Required]
+        public required string Username { get; set; }
+
+        [Required]
+        public required string Password { get; set; }
+
         public class Validator : AbstractValidator<AuthenticateRequest>
         {
             public Validator()
             {
-                RuleFor(x => x.username).NotEmpty();
-                RuleFor(x => x.password).NotEmpty();
+                RuleFor(x => x.Username).NotEmpty();
+                RuleFor(x => x.Password).NotEmpty();
             }
         }
     }

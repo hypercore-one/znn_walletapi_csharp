@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using System.Diagnostics.CodeAnalysis;
 
-namespace ZenonWalletApi.Models
+namespace ZenonWalletApi.Models.Parameters
 {
     public record AccountIndex(int value = 0) : IParsable<AccountIndex>
     {

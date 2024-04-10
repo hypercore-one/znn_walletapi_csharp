@@ -1,16 +1,19 @@
 ﻿using FluentValidation;
+using System.ComponentModel.DataAnnotations;
 using Zenon.Model.Primitives;
 
 namespace ZenonWalletApi.Models
 {
-    public record CancelPlasmaRequest(
-        Hash idHash)
+    public record CancelPlasmaRequest
     {
+        [Required]
+        public required Hash IdHash { get; set; }
+
         public class Validator : AbstractValidator<CancelPlasmaRequest>
         {
             public Validator()
             {
-                RuleFor(x => x.idHash).NotNull().NotEqual(Hash.Empty);
+                RuleFor(x => x.IdHash).NotNull().NotEqual(Hash.Empty);
             }
         }
     }
