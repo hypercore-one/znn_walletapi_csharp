@@ -1,4 +1,5 @@
-﻿using ZenonWalletApi.Models;
+﻿using ZenonWalletApi.Infrastructure.Filters;
+using ZenonWalletApi.Models;
 using ZenonWalletApi.Services;
 
 namespace ZenonWalletApi.Features.InitializeWallet

@@ -5,6 +5,7 @@ using Zenon.Model.NoM;
 using Zenon.Model.NoM.Json;
 using Zenon.Model.Primitives;
 using Zenon.Utils;
+using ZenonWalletApi.Infrastructure.Filters;
 using ZenonWalletApi.Models;
 using ZenonWalletApi.Models.Exceptions;
 using ZenonWalletApi.Models.Parameters;

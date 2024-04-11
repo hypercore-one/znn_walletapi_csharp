@@ -1,4 +1,5 @@
-﻿using ZenonWalletApi.Models.Parameters;
+﻿using ZenonWalletApi.Infrastructure.Filters;
+using ZenonWalletApi.Models.Parameters;
 using ZenonWalletApi.Services;
 
 namespace ZenonWalletApi.Features.UnsubscribeAccount

@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Zenon.Model.NoM;
 using Zenon.Model.NoM.Json;
+using ZenonWalletApi.Infrastructure.Filters;
 using ZenonWalletApi.Models;
 using ZenonWalletApi.Models.Parameters;
 using ZenonWalletApi.Services;

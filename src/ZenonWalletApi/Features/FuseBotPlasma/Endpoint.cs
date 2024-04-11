@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using ZenonWalletApi.Infrastructure.Filters;
 using ZenonWalletApi.Models;
 using ZenonWalletApi.Services;
 

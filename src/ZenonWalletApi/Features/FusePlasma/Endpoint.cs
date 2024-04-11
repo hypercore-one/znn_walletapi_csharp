@@ -2,6 +2,7 @@
 using Zenon;
 using Zenon.Model.NoM.Json;
 using Zenon.Utils;
+using ZenonWalletApi.Infrastructure.Filters;
 using ZenonWalletApi.Models;
 using ZenonWalletApi.Models.Parameters;
 using ZenonWalletApi.Services;
