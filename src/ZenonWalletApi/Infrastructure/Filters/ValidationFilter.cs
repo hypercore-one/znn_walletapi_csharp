@@ -2,7 +2,7 @@
 using System.Net;
 using System.Reflection;
 
-namespace ZenonWalletApi
+namespace ZenonWalletApi.Infrastructure.Filters
 {
     [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false)]
     public class ValidateAttribute : Attribute

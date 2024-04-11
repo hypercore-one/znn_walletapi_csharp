@@ -1,9 +1,14 @@
 ﻿using Microsoft.Extensions.Options;
+using ZenonWalletApi.Options;
 
 namespace ZenonWalletApi.Services
 {
-    public interface IAutoLockService : IHostedService, IDisposable
+    public interface IAutoLockerService : IHostedService
     {
+        bool IsEnabled { get; }
+
+        bool IsSuspended { get; }
+
         void Activity();
 
         void Suspend();
@@ -11,41 +16,36 @@ namespace ZenonWalletApi.Services
         void Resume();
     }
 
-    public class AutoLockServiceOptions
-    {
-        public const string AutoLocker = "Api:AutoLocker";
-
-        public bool Enabled { get; set; } = true;
-
-        public TimeSpan LockTimeout { get; set; } = TimeSpan.FromMinutes(5);
-    }
-
-    public class AutoLockService : BackgroundService, IAutoLockService
+    internal class AutoLockerService : BackgroundService, IAutoLockerService, IDisposable
     {
         private volatile int _counter = 0;
 
-        public AutoLockService(ILogger<AutoLockService> logger, IOptions<AutoLockServiceOptions> options, IServiceProvider services)
+        public AutoLockerService(ILogger<AutoLockerService> logger, IOptions<AutoLockerOptions> options, IServiceProvider services)
         {
             Logger = logger;
             Options = options.Value;
-            Enabled = Options.Enabled;
+            Timer = new PeriodicTimer(Options.TimerInterval);
             Services = services;
         }
 
         private ILogger Logger { get; }
 
-        private AutoLockServiceOptions Options { get; }
+        private AutoLockerOptions Options { get; }
 
-        private IServiceProvider Services { get; set; }
+        private PeriodicTimer Timer { get; }
 
-        public bool Enabled { get; private set; }
+        private IServiceProvider Services { get; }
+
+        public bool IsEnabled => Options.Enabled;
+
+        public bool IsSuspended { get; private set; }
 
         public DateTime LastActivity { get; private set; }
 
         public void Activity()
         {
             Logger.LogDebug("Activity");
-            LastActivity = DateTime.Now;
+            LastActivity = DateTime.UtcNow;
         }
 
         public void Suspend()
@@ -53,7 +53,7 @@ namespace ZenonWalletApi.Services
             if (Interlocked.Increment(ref _counter) == 1)
             {
                 Logger.LogDebug("Suspend");
-                Enabled = false;
+                IsSuspended = true;
             }
         }
 
@@ -64,7 +64,7 @@ namespace ZenonWalletApi.Services
                 if (Interlocked.Decrement(ref _counter) == 0)
                 {
                     Logger.LogDebug("Resume");
-                    Enabled = true;
+                    IsSuspended = false;
                 }
             }
         }
@@ -75,11 +75,10 @@ namespace ZenonWalletApi.Services
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+                await Timer.WaitForNextTickAsync(stoppingToken);
 
-                if (Enabled &&
-                    wallet.IsUnlocked &&
-                    LastActivity + Options.LockTimeout < DateTime.Now)
+                if (IsEnabled && !IsSuspended && wallet.IsUnlocked &&
+                    LastActivity + Options.LockTimeout < DateTime.UtcNow)
                 {
                     Logger.LogDebug("AutoLock");
                     await wallet.LockAsync();

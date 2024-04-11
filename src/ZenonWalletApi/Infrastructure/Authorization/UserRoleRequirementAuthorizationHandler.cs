@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 
-namespace ZenonWalletApi.Authorization
+namespace ZenonWalletApi.Infrastructure.Authorization
 {
     public class UserRoleRequirementAuthorizationHandler : AuthorizationHandler<UserRoleRequirement>
     {

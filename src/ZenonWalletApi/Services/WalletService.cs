@@ -1,13 +1,11 @@
 ﻿using Microsoft.Extensions.Options;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
-using Zenon;
 using Zenon.Model.Primitives;
 using Zenon.Wallet;
+using ZenonWalletApi.Options;
 
 namespace ZenonWalletApi.Services
 {
-    public interface IWalletService : IHostedService, IDisposable
+    public interface IWalletService : IHostedService
     {
         bool IsInitialized { get; }
 
@@ -26,24 +24,9 @@ namespace ZenonWalletApi.Services
         Task<Address> GetAccountAddressAsync(int accountIndex);
     }
 
-    public class WalletOptions
+    internal class WalletService : BackgroundService, IWalletService, IDisposable
     {
-        public const string Wallet = "Api:Wallet";
-
-        public static string DefaultWalletPath = ZdkPaths.Default.Wallet;
-        public static string DefaultWalletName = "api";
-
-        [Required]
-        public required string Path { get; set; } = DefaultWalletPath;
-        [Required]
-        public required string Name { get; set; } = DefaultWalletName;
-        [Range(3, 10), AllowNull]
-        public int? EraseLimit { get; set; }
-    }
-
-    public class WalletService : BackgroundService, IWalletService
-    {
-        public WalletService(ILogger<WalletService> logger, IOptions<WalletOptions> options, IAutoLockService autoLocker)
+        public WalletService(ILogger<WalletService> logger, IOptions<WalletOptions> options, IAutoLockerService autoLocker)
         {
             Logger = logger;
             Options = options.Value;
@@ -57,7 +40,7 @@ namespace ZenonWalletApi.Services
 
         private WalletOptions Options { get; }
 
-        private IAutoLockService AutoLocker { get; }
+        private IAutoLockerService AutoLocker { get; }
 
         private KeyStoreManager WalletManager { get; }
 

@@ -9,10 +9,11 @@ using Zenon.Model;
 using Zenon.Model.NoM;
 using Zenon.Model.Primitives;
 using Zenon.Wallet;
+using ZenonWalletApi.Options;
 
 namespace ZenonWalletApi.Services
 {
-    public interface IAutoReceiverService : IHostedService, IDisposable
+    public interface IAutoReceiverService : IHostedService
     {
         bool IsEnabled { get; }
 
@@ -21,19 +22,13 @@ namespace ZenonWalletApi.Services
         Task UnsubscribeAsync(int accountIndex);
     }
 
-    public class AutoReceiveOptions
+    internal class AutoReceiverService : BackgroundService, IAutoReceiverService, IDisposable
     {
-        public const string AutoReceiver = "Api:AutoReceiver";
-
-        public bool Enabled { get; set; } = true;
-    }
-
-    public class AutoReceiverService : BackgroundService, IAutoReceiverService
-    {
-        public AutoReceiverService(ILogger<AutoReceiverService> logger, IOptions<AutoReceiveOptions> options, IWalletService wallet, INodeService node)
+        public AutoReceiverService(ILogger<AutoReceiverService> logger, IOptions<AutoReceiverOptions> options, IWalletService wallet, INodeService node)
         {
-            Options = options.Value;
             Logger = logger;
+            Options = options.Value;
+            Timer = new PeriodicTimer(Options.TimerInterval);
             Wallet = wallet;
             Node = node;
         }
@@ -42,8 +37,13 @@ namespace ZenonWalletApi.Services
         private ConcurrentQueue<Hash> Queue { get; } = new ConcurrentQueue<Hash>();
 
         private ILogger<AutoReceiverService> Logger { get; }
-        private AutoReceiveOptions Options { get; }
+
+        private AutoReceiverOptions Options { get; }
+
+        private PeriodicTimer Timer { get; }
+
         private IWalletService Wallet { get; }
+
         private INodeService Node { get; }
 
         public bool IsEnabled => Options.Enabled;
@@ -180,9 +180,9 @@ namespace ZenonWalletApi.Services
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
+                await Timer.WaitForNextTickAsync(stoppingToken);
 
-                if (Options.Enabled)
+                if (IsEnabled)
                 {
                     try
                     {

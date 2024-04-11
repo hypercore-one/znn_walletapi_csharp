@@ -1,10 +1,9 @@
 ﻿using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using System.ComponentModel.DataAnnotations;
-using System.Diagnostics.CodeAnalysis;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using ZenonWalletApi.Options;
 
 namespace ZenonWalletApi.Services
 {
@@ -13,33 +12,14 @@ namespace ZenonWalletApi.Services
         Task<string> GenerateJwtTokenAsync(IEnumerable<Claim> claims);
     }
 
-    public class JwtOptions
-    {
-        public const string Jwt = "Api:Jwt";
-
-        public const string DefaultValidIssuer = "zenon.wallet.api";
-        public const string DefaultValidAudience = "zenon.network";
-
-        [Required]
-        public required string Secret { get; set; }
-        [Required]
-        public required string ValidIssuer { get; set; } = DefaultValidIssuer;
-        [Required]
-        public required string ValidAudience { get; set; } = DefaultValidAudience;
-        [AllowNull]
-        public DateTime? ExpiresOn { get; set; }
-        [AllowNull]
-        public TimeSpan? ExpiresAfter { get; set; }
-    }
-
-    public class JwtService : IJwtService
+    internal class JwtService : IJwtService
     {
         public JwtService(IOptions<JwtOptions> options)
         {
             Options = options.Value;
         }
 
-        private JwtOptions Options { get; set; }
+        private JwtOptions Options { get; }
 
         public async Task<string> GenerateJwtTokenAsync(IEnumerable<Claim> claims)
         {

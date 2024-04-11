@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using Zenon.Wallet;
 
-namespace ZenonWalletApi.Services.ExceptionHandlers
+namespace ZenonWalletApi.Infrastructure.ExceptionHandlers
 {
     internal class IncorrectPasswordExceptionHandler : IExceptionHandler
     {

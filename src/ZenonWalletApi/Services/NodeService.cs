@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
 using System.Collections.Concurrent;
-using System.ComponentModel.DataAnnotations;
 using Zenon;
 using Zenon.Client;
 using Zenon.Model;
@@ -8,10 +7,11 @@ using Zenon.Model.NoM;
 using Zenon.Model.Primitives;
 using Zenon.Pow;
 using Zenon.Wallet;
+using ZenonWalletApi.Options;
 
 namespace ZenonWalletApi.Services
 {
-    public interface INodeService : IClient, IDisposable
+    public interface INodeService : IClient
     {
         Zdk Api { get; }
 
@@ -22,34 +22,21 @@ namespace ZenonWalletApi.Services
         Task<AccountBlockTemplate> SendAsync(AccountBlockTemplate block, IWalletAccount account);
     }
 
-    public class NodeOptions
+    internal class NodeService : WsClient, INodeService, IDisposable
     {
-        public const string Node = "Api:Node";
+        public NodeService(ILogger<NodeService> logger, IOptions<NodeOptions> options, IAutoLockerService autoLocker)
+            : this(logger, options.Value, autoLocker)
+        { }
 
-        public const string DefaultNodeUrl = "ws://127.0.0.1:35998";
-        public const int DefaultMaxPoWThreads = 5;
-
-        [Required]
-        public required string NodeUrl { get; set; } = DefaultNodeUrl;
-        [Required]
-        public required int ChainId { get; set; } = Constants.ChainId;
-        [Required]
-        public required int ProtocolVersion { get; set; } = Constants.ProtocolVersion;
-        [Range(1, 100)]
-        public int MaxPoWThreads { get; set; } = DefaultMaxPoWThreads;
-    }
-
-    public class NodeService : WsClient, INodeService
-    {
-        public NodeService(ILogger<NodeService> logger, IOptions<NodeOptions> options, IAutoLockService autoLocker)
-            : base(options.Value.NodeUrl, new WsClientOptions()
-            {
-                ChainIdentifier = options.Value.ChainId,
-                ProtocolVersion = options.Value.ProtocolVersion
-            })
+        public NodeService(ILogger<NodeService> logger, NodeOptions options, IAutoLockerService autoLocker)
+           : base(options.NodeUrl, new WsClientOptions()
+           {
+               ChainIdentifier = options.ChainId,
+               ProtocolVersion = options.ProtocolVersion
+           })
         {
             Logger = logger;
-            Options = options.Value;
+            Options = options;
             PoW = new Semaphore(Options.MaxPoWThreads, Options.MaxPoWThreads);
             Api = new Zdk(this);
             AutoLocker = autoLocker;
@@ -64,11 +51,9 @@ namespace ZenonWalletApi.Services
 
         private Semaphore PoW { get; }
 
-        private IAutoLockService AutoLocker { get; }
+        private IAutoLockerService AutoLocker { get; }
 
         public Zdk Api { get; }
-
-        public new bool IsClosed => base.IsClosed;
 
         private Semaphore GetSemaphore(Address address)
         {

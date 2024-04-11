@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Options;
-using System.ComponentModel.DataAnnotations;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using ZenonWalletApi.Models;
+using ZenonWalletApi.Options;
 
 namespace ZenonWalletApi.Services
 {
@@ -13,15 +13,7 @@ namespace ZenonWalletApi.Services
         Task<User?> GetByIdAsync(Guid id);
     }
 
-    public class ApiOptions
-    {
-        public const string Api = "Api";
-
-        [Required]
-        public required IEnumerable<User> Users { get; set; }
-    }
-
-    public class UserService : IUserService
+    internal class UserService : IUserService
     {
         public UserService(ILogger<UserService> logger, IOptions<ApiOptions> appSettings, IJwtService jwt)
         {

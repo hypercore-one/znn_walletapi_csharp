@@ -1,30 +1,34 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using ZenonWalletApi.Models.Exceptions;
+using System.Net.Sockets;
+using System.Net.WebSockets;
+using Zenon.Client;
 
-namespace ZenonWalletApi.Services.ExceptionHandlers
+namespace ZenonWalletApi.Infrastructure.ExceptionHandlers
 {
-    internal class NotFoundExceptionHandler : IExceptionHandler
+    internal class SocketExceptionHandler : IExceptionHandler
     {
-        public NotFoundExceptionHandler(ILogger<NotFoundExceptionHandler> logger)
+        public SocketExceptionHandler(ILogger<SocketExceptionHandler> logger)
         {
             Logger = logger;
         }
 
-        private ILogger<NotFoundExceptionHandler> Logger { get; }
+        private ILogger<SocketExceptionHandler> Logger { get; }
 
         public async ValueTask<bool> TryHandleAsync(
             HttpContext httpContext,
             Exception exception,
             CancellationToken cancellationToken)
         {
-            if (exception is not NotFoundException)
+            if (exception is not SocketException ||
+                exception is not WebSocketException ||
+                exception is not NoConnectionException)
             {
                 return false;
             }
 
-            Logger.LogWarning(exception.Message);
+            Logger.LogError(exception, "Connection exception");
 
             httpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
             await httpContext.Response.WriteAsJsonAsync(new ProblemDetails

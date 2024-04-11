@@ -1,32 +1,32 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using System.Net;
-using Zenon.Wallet;
+using ZenonWalletApi.Models.Exceptions;
 
-namespace ZenonWalletApi.Services.ExceptionHandlers
+namespace ZenonWalletApi.Infrastructure.ExceptionHandlers
 {
-    internal class WalletExceptionHandler : IExceptionHandler
+    internal class NotFoundExceptionHandler : IExceptionHandler
     {
-        public WalletExceptionHandler(ILogger<WalletExceptionHandler> logger)
+        public NotFoundExceptionHandler(ILogger<NotFoundExceptionHandler> logger)
         {
             Logger = logger;
         }
 
-        private ILogger<WalletExceptionHandler> Logger { get; }
+        private ILogger<NotFoundExceptionHandler> Logger { get; }
 
         public async ValueTask<bool> TryHandleAsync(
             HttpContext httpContext,
             Exception exception,
             CancellationToken cancellationToken)
         {
-            if (exception is not WalletException)
+            if (exception is not NotFoundException)
             {
                 return false;
             }
 
             Logger.LogWarning(exception.Message);
 
-            httpContext.Response.StatusCode = (int)HttpStatusCode.Conflict;
+            httpContext.Response.StatusCode = (int)HttpStatusCode.NotFound;
             await httpContext.Response.WriteAsJsonAsync(new ProblemDetails
             {
                 Status = httpContext.Response.StatusCode,

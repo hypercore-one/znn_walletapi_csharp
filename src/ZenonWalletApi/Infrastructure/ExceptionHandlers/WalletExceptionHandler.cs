@@ -1,30 +1,30 @@
 ﻿using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using StreamJsonRpc;
 using System.Net;
+using Zenon.Wallet;
 
-namespace ZenonWalletApi.Services.ExceptionHandlers
+namespace ZenonWalletApi.Infrastructure.ExceptionHandlers
 {
-    internal class RemoteInvocationExceptionHandler : IExceptionHandler
+    internal class WalletExceptionHandler : IExceptionHandler
     {
-        public RemoteInvocationExceptionHandler(ILogger<RemoteInvocationExceptionHandler> logger)
+        public WalletExceptionHandler(ILogger<WalletExceptionHandler> logger)
         {
             Logger = logger;
         }
 
-        private ILogger<RemoteInvocationExceptionHandler> Logger { get; }
+        private ILogger<WalletExceptionHandler> Logger { get; }
 
         public async ValueTask<bool> TryHandleAsync(
             HttpContext httpContext,
             Exception exception,
             CancellationToken cancellationToken)
         {
-            if (exception is not RemoteInvocationException)
+            if (exception is not WalletException)
             {
                 return false;
             }
 
-            Logger.LogError(exception, "Remote invocation exception");
+            Logger.LogWarning(exception.Message);
 
             httpContext.Response.StatusCode = (int)HttpStatusCode.Conflict;
             await httpContext.Response.WriteAsJsonAsync(new ProblemDetails

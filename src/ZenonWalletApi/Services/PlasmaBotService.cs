@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
-using System.ComponentModel.DataAnnotations;
 using System.Net;
 using Zenon.Model.Primitives;
+using ZenonWalletApi.Options;
 
 namespace ZenonWalletApi.Services
 {
@@ -11,25 +11,8 @@ namespace ZenonWalletApi.Services
         Task<IResult> FuseAsync(Address address);
     }
 
-    public class PlasmaBotOptions
+    internal class PlasmaBotService : IPlasmaBotService
     {
-        public const string PlasmaBot = "Api:Utilities:PlasmaBot";
-
-        public const string DefaultApiUrl = "https://zenonhub.io/api/utilities/plasma-bot/";
-
-        [Required, Url]
-        public required string ApiUrl { get; set; } = DefaultApiUrl;
-        [Required]
-        public required string ApiKey { get; set; }
-    }
-
-    public class PlasmaBotService : IPlasmaBotService
-    {
-        public static Uri CombineUri(string baseUri, string relativeOrAbsoluteUri)
-        {
-            return new Uri(new Uri(baseUri), relativeOrAbsoluteUri);
-        }
-
         public PlasmaBotService(ILogger<PlasmaBotService> logger, IOptions<PlasmaBotOptions> options, HttpClient httpClient)
         {
             Logger = logger;
