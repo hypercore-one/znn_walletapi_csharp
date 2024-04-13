@@ -1,6 +1,6 @@
 # Zenon Wallet API for .NET
 
-A .NET based Wallet API for interacting with Zenon Alphanet - Network of Momentum Phase 1
+A cross platform .NET based Wallet API for interacting with Zenon Alphanet - Network of Momentum Phase 1
 
 ## Requirements
 
@@ -9,8 +9,9 @@ A .NET based Wallet API for interacting with Zenon Alphanet - Network of Momentu
 ## Dependencies
 
 - [Zenon SDK for .NET](https://github.com/hypercore-one/znn_sdk_csharp)
+- [Zenon Node](https://github.com/zenon-network/go-zenon)
 
-## Build on Linux
+## Installation on Linux
 
 ``` bash
 sudo apt-get update && sudo apt-get install -y dotnet8
@@ -27,14 +28,14 @@ dotnet build -c Release
 ../../bin/ZenonWalletApi/release/net8.0/ZenonWalletApi --environment Production --urls https://localhost:443
 ```
 
-# Configuration
+## Configuration
 
 The following documentation explains how to configure the Zenon Wallet API.
 
 Visit [Microsoft's Configuration in ASP.NET Core](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-8.0) for more information on how to configure ASP.NET Core.
 
 
-## Authentication
+### Authentication
 
 The Zenon Wallet API implements [JWT](https://en.wikipedia.org/wiki/JSON_Web_Token) bearer authentication. The tokens hold claims and are signed using a private secret key.
 
@@ -68,9 +69,9 @@ Sets the expiration datetime in UTC when tokens expire. Cannot be used simultane
 Sets the expiration timespan when tokens expire. Cannot be used simultaneously with `ExpiresOn`. Default value is: `null`.
 
 
-Use the following Dart code to generate a secret key.
+Use the following Python code to generate a secret key.
 
-``` dart
+``` python
 import hashlib
 import secrets
 
@@ -84,7 +85,7 @@ print(sha256_key)
 ```
 
 
-## Authorization
+### Authorization
 
 Access to the API endpoints is restricted depending on specific claims in the JWT bearer token.
 
@@ -125,9 +126,9 @@ The password hash (based on the Blowfish cipher) of the user.
 An array of user roles. Available roles are: `"User"` or `"Admin"`.
 
 
-Use the following Dart code to generate a password hash.
+Use the following Python code to generate a password hash.
 
-``` dart
+``` python
 import bcrypt
 
 password = "admin".encode()  # Password to hash
@@ -138,7 +139,7 @@ print(hashed_password)
 ```
 
 
-## Wallet
+### Wallet
 
 A wallet needs to be initialized in order to properly use the Zenon Wallet Api.
 
@@ -166,7 +167,7 @@ The name of the encrypted wallet file.
 The number of unlock attempts before the wallet is uninitialized. Default value is: `3`. Can be `null`.
 
 
-## Node
+### Node
 
 A node client needs to be configured in order to interact with the Zenon Network of Momentum.
 
@@ -195,7 +196,7 @@ The protocol version the client uses when sending transactions. Default value is
 The maximum number of PoW threads that can run simultaneously. Must be a value between 1 and 100. Default value is: `1`.
 
 
-## AutoReceiver
+### AutoReceiver
 
 The auto-receiver automatically receives transactions for accounts that are subscribed to it.
 
@@ -218,7 +219,7 @@ Determines whether or not the auto-receiver service is enabled. Default value is
 The timer interval the service checks whether new transactions are available to process. Default value is: `"00:00:05"`.
 
 
-## AutoLocker
+### AutoLocker
 
 The auto-locker automatically locks the wallet after an interval of inactivity. A locked wallet is unloaded from memory.
 
@@ -244,11 +245,11 @@ The lock timeout determines the amount of time of wallet inactivity before the w
 The timer interval the service checks whether the lock timeout has expired. Default value is: `"00:00:05"`.
 
 
-## PlasmaBot
+### PlasmaBot
 
-The community plasma bot offers plasma as a service. It fuses QSR to a specific address.
+The community plasma bot offers plasma as a service. It fuses QSR for a limited amount of time to an address.
 
-A valid API key most be obtained in order to make use of the plasma bot service.
+A valid API key is needed to make use of the plasma bot service.
 
 Use the `Api:Utilities:PlasmaBot` configuration section to configure the auto-locker.
 
@@ -266,9 +267,9 @@ Use the `Api:Utilities:PlasmaBot` configuration section to configure the auto-lo
 **Options:**
 
 - **ApiUrl**  
-The url of the plasma-bot api. Default value is: `https://zenonhub.io/api/utilities/plasma-bot/`.
+The base url of the plasma-bot api. Default value is: `https://zenonhub.io/api/utilities/plasma-bot/`.
 - **ApiKey**  
-The api key of the plasma-bot.
+The api key of the plasma-bot api.
 
 
 ## Contributing
