@@ -43,7 +43,7 @@ By default tokens do not expire and require a private secret.
 Use the Api:Jwt configuration section to configure Jwt authentication.
 
 ``` Json
-"Api" {
+"Api": {
   "Jwt": {
     "Secret": "This is a sample secret key - please don't use in production environment."
     "ValidIssuer": "zenon.wallet.api"
@@ -56,15 +56,15 @@ Use the Api:Jwt configuration section to configure Jwt authentication.
 
 **Options:**
 
-- Secret
+- **Secret**
 Sets the issuer security key that is to be used for signature validation.
-- ValidIssuer
+- **ValidIssuer**
 Sets a string that represents a valid issuer that will be used to check against the token's issuer. Default value is: `"zenon.wallet.api"`.
-- ValudAudience
+- **ValudAudience**
 Sets a string that represents a valid audience that will be used to check against the token's audience. Default value is: `"zenon.network"`.
-- ExpiresOn
+- **ExpiresOn**
 Sets the expiration datetime in UTC when tokens expire. Cannot be used simultaneously with `ExpiresAfter`. Default value is: `null`.
-- ExpiresAfter
+- **ExpiresAfter**
 Sets the expiration timespan when tokens expire. Cannot be used simultaneously with `ExpiresOn`. Default value is: `null`.
 
 
@@ -95,7 +95,7 @@ Users and roles need to be configured in order to authorize an user and create t
 Use the Api:Users configuration section to configure Users authorization.
 
 ``` Json
-"Api" {
+"Api": {
   "Users": [
     {
       "Id": "236220d1-fafe-450a-9ce2-018e06c84a46",
@@ -114,13 +114,13 @@ Use the Api:Users configuration section to configure Users authorization.
 ```
 
 **Options**:
-- Id
+- **Id**
 A guid represetning an unique user id .
-- Username
+- **Username**
 The username of the user.
-- Password
+- **Password**
 The password hash (based on the Blowfish cipher) of the user.
-- Roles
+- **Roles**
 An array of user roles. Available roles are: `"User"` or `"Admin"`.
 
 
@@ -146,7 +146,7 @@ Use the endpoints `/api/wallet/init` or `/api/wallet/restore' to initialize a wa
 Use the Api:Wallet configuration section to configure the wallet.
 
 ``` Json
-"Api" {
+"Api": {
   "Wallet": {
     "Path": "~/.znn/wallet",
     "Name": "api",
@@ -157,11 +157,11 @@ Use the Api:Wallet configuration section to configure the wallet.
 
 **Options:**
 
-- Path
+- **Path**
 The directory path where the encrypted wallet file will be stored.
-- Name
+- **Name**
 The name of the encrypted wallet file.
-- EraseLimit
+- **EraseLimit**
 The number of unlock attempts before the wallet is uninitialized. Default value is: `3`. Can be `null`.
 
 
@@ -172,7 +172,7 @@ A node client needs to be configured in order to interact with the Zenon Network
 Use the Api:Node configuration section to configure the node client.
 
 ``` Json
-"Api" {
+"Api": {
   "Node": {
     "NodeUrl": "ws://127.0.0.1:35998",
     "ChainId": 1,
@@ -184,13 +184,13 @@ Use the Api:Node configuration section to configure the node client.
 
 **Options:**
 
-- NodeUrl
+- **NodeUrl**
 The url of the node. Default value is: `"ws://127.0.0.1:35998"`.
-- ChainId
+- **ChainId**
 The chain identifier the client uses when sending transactions. Default value is: `1`.
-- ProtocolVersion
+- **ProtocolVersion**
 The protocol version the client uses when sending transactions. Default value is: `1`.
-- MaxPoWThreads
+- **MaxPoWThreads**
 The maximum number of PoW threads that can run simultaneously. Must be a value between 1 and 100. Default value is: `1`.
 
 
@@ -201,7 +201,7 @@ The auto-receiver automatically receives transactions for accounts that are subs
 Use the Api:AutoReceiver configuration section to configure the auto-receiver.
 
 ``` Json
-"Api" {
+"Api": {
   "AutoReceiver": {
     "Enabled": true,
     "TimerInterval": "00:00:05"
@@ -211,9 +211,9 @@ Use the Api:AutoReceiver configuration section to configure the auto-receiver.
 
 **Options:**
 
-- Enabled
+- **Enabled**
 Determines whether or not the auto-receiver service is enabled. Default value is: `true`.
-- TimeInterval
+- **TimeInterval**
 The timer interval the service checks whether new transactions are available to process. Default value is: `"00:00:05"`.
 
 
@@ -224,7 +224,7 @@ The auto-locker automatically locks the wallet after an interval of inactivity. 
 Use the Api:AutoLocker configuration section to configure the auto-locker.
 
 ``` Json
-"Api" {
+"Api": {
   "AutoLocker": {
     "Enabled": true,
     "LockTimeout": "00:05:00"
@@ -235,11 +235,11 @@ Use the Api:AutoLocker configuration section to configure the auto-locker.
 
 **Options:**
 
-- Enabled
+- **Enabled**
 Determines whether or not the auto-receiver service is enabled. Default value is: `true`.
-- LockTimeout
+- **LockTimeout**
 The lock timeout determines the amount of time of wallet inactivity before the wallet is locked. Default value is: `"00:05:00"`.
-- TimeInterval
+- **TimeInterval**
 The timer interval the service checks whether the lock timeout has expired. Default value is: `"00:00:05"`.
 
 
@@ -252,7 +252,7 @@ A valid API key most be obtained in order to make use of the plasma bot service.
 Use the Api:Utilities:PlasmaBot configuration section to configure the auto-locker.
 
 ``` Json
-"Api" {
+"Api": {
   "Utilities": {
     "PlasmaBot": {
       "ApiUrl": "https://zenonhub.io/api/utilities/plasma-bot/",
@@ -264,9 +264,9 @@ Use the Api:Utilities:PlasmaBot configuration section to configure the auto-lock
 
 **Options:**
 
-- ApiUrl
+- **ApiUrl**
 The url of the plasma-bot api. Default value is: `https://zenonhub.io/api/utilities/plasma-bot/`.
-- ApiKey
+- **ApiKey**
 The api key of the plasma-bot.
 
 
