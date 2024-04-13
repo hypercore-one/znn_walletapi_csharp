@@ -1,6 +1,6 @@
 # Zenon Wallet API for .NET
 
-A cross platform .NET based Wallet API for interacting with Zenon Alphanet - Network of Momentum Phase 1
+A .NET based cross-platform Wallet API for interacting with Zenon Alphanet - Network of Momentum Phase 1
 
 ## Requirements
 
@@ -117,11 +117,11 @@ Use the `Api:Users` configuration section to configure Users authorization.
 **Options**:
 
 - **Id**  
-A guid represetning an unique user id .
+A guid that represents an unique user id.
 - **Username**  
 The username of the user.
 - **Password**  
-The password hash (based on the Blowfish cipher) of the user.
+The password hash of the user. The hash is based on the Blowfish cipher. See code below to generate a hash.
 - **Roles**  
 An array of user roles. Available roles are: `"User"` or `"Admin"`.
 
@@ -141,7 +141,7 @@ print(hashed_password)
 
 ### Wallet
 
-A wallet needs to be initialized in order to properly use the Zenon Wallet Api.
+A wallet needs to be initialized in order to properly interact with the Zenon Network.
 
 The endpoints `/api/wallet/init` or `/api/wallet/restore` are used to initialize a wallet and require the `Admin` role claim.
 
@@ -160,7 +160,7 @@ Use the `Api:Wallet` configuration section to configure the wallet.
 **Options:**
 
 - **Path**  
-The directory path where the encrypted wallet file will be stored.
+The directory path to store the encrypted wallet file.
 - **Name**  
 The name of the encrypted wallet file.
 - **EraseLimit**  
@@ -169,7 +169,9 @@ The number of unlock attempts before the wallet is uninitialized. Default value 
 
 ### Node
 
-A node client needs to be configured in order to interact with the Zenon Network of Momentum.
+A node client needs to be configured in order to interact with the Zenon Network.
+
+The node client can either connect a local Zenon Node or connect an external node. It is highly recommended to setup and use a local Zenon Node in a production environment. 
 
 Use the `Api:Node` configuration section to configure the node client.
 
@@ -189,16 +191,16 @@ Use the `Api:Node` configuration section to configure the node client.
 - **NodeUrl**  
 The url of the node. Default value is: `"ws://127.0.0.1:35998"`.
 - **ChainId**  
-The chain identifier the client uses when sending transactions. Default value is: `1`.
+The chain identifier the client uses when signing and sending transactions. Default value is: `1`.
 - **ProtocolVersion**  
-The protocol version the client uses when sending transactions. Default value is: `1`.
+The protocol version the client uses when signing and sending transactions. Default value is: `1`.
 - **MaxPoWThreads**  
 The maximum number of PoW threads that can run simultaneously. Must be a value between 1 and 100. Default value is: `1`.
 
 
 ### AutoReceiver
 
-The auto-receiver automatically receives transactions for accounts that are subscribed to it.
+The auto-receiver will receive transactions for subscribed accounts when the wallet is initialized and unlocked.
 
 Use the `Api:AutoReceiver` configuration section to configure the auto-receiver.
 
@@ -221,7 +223,7 @@ The timer interval the service checks whether new transactions are available to 
 
 ### AutoLocker
 
-The auto-locker automatically locks the wallet after an interval of inactivity. A locked wallet is unloaded from memory.
+The auto-locker automatically locks the wallet after a period of inactivity. A locked wallet is unloaded from memory.
 
 Use the `Api:AutoLocker` configuration section to configure the auto-locker.
 
@@ -270,6 +272,94 @@ Use the `Api:Utilities:PlasmaBot` configuration section to configure the auto-lo
 The base url of the plasma-bot api. Default value is: `https://zenonhub.io/api/utilities/plasma-bot/`.
 - **ApiKey**  
 The api key of the plasma-bot api.
+
+
+## API Documentation
+
+Once the Zenon Wallet API is installed, configured and running. Navigate to `https://localhost:443/swagger/v1/swagger.json` to consult the API Documentation.
+
+
+## Usage
+
+### To initialize or restore the wallet
+
+1. Authenticate an user with an admin role to create a token with an admin role claim.
+
+```
+curl --location --request POST 'https://localhost/api/users/authenticate' \ 
+	--header 'Content-Type: application/json' \ 
+	--header 'Accept: */*' \ 
+	--data-raw '{"username": "admin","password": "admin" }'
+```
+
+2. Use the token in the response for future requests in the `Authorization` header.
+3. Initialize the wallet.
+
+```
+curl --location --request POST 'https://localhost/api/wallet/init' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer [enter token here]' \
+--header 'Accept: */*' \
+--data-raw '{
+    "password": "[enter valid wallet password]"
+}'
+```
+
+or to restore:
+
+```
+curl --location --request POST 'https://localhost/api/wallet/restore' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer [enter token here]' \
+--header 'Accept: */*' \
+--data-raw '{
+    "password": "[enter valid wallet password]",
+    "mnemonic": "[enter valid wallet mnemonic]"
+}'
+```
+
+4. Check wallet status (should be initialized and unlocked).
+
+```
+curl --location --request GET 'https://localhost/api/wallet/status' \
+--header 'User-Agent: Apidog/1.0.0 (https://apidog.com)' \
+--header 'Authorization: Bearer [enter token here]' \
+--header 'Accept: */*' \
+```
+
+
+### To unlock the wallet
+
+1. Authenticate an user with an user role to create a token with an user role claim.
+
+```
+curl --location --request POST 'https://localhost/api/users/authenticate' \ 
+	--header 'Content-Type: application/json' \ 
+	--header 'Accept: */*' \ 
+	--data-raw '{"username": "user","password": "user" }'
+```
+
+2. Use the token in the response for future requests in the `Authorization` header.
+3. Unlock the wallet.
+
+```
+curl --location --request POST 'https://localhost/api/wallet/unlock' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer [enter token here]' \
+--header 'Accept: */*' \
+--data-raw '{
+    "password": "[enter wallet password]"
+}'
+```
+
+4. Check wallet status (should be initialized and unlocked).
+
+```
+curl --location --request GET 'https://localhost/api/wallet/status' \
+--header 'User-Agent: Apidog/1.0.0 (https://apidog.com)' \
+--header 'Authorization: Bearer [enter token here]' \
+--header 'Accept: */*' \
+```
 
 
 ## Contributing
