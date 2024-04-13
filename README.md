@@ -10,6 +10,7 @@ A .NET based cross-platform Wallet API for interacting with Zenon Alphanet - Net
 
 - [Zenon SDK for .NET](https://github.com/hypercore-one/znn_sdk_csharp)
 - [Zenon Node](https://github.com/zenon-network/go-zenon)
+- [Serilog](https://serilog.net/)
 
 ## Installation on Linux
 
