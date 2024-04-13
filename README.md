@@ -277,7 +277,7 @@ The api key of the plasma-bot api.
 
 ## API Documentation
 
-Once the Zenon Wallet API is installed, configured and running. Navigate to `https://localhost:443/swagger/v1/swagger.json` to consult the API Documentation.
+Once the Zenon Wallet API is installed, configured and running. Navigate to `https://localhost:443/swagger` to consult the API Documentation.
 
 
 ## Usage
