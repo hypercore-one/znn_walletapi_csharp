@@ -95,7 +95,7 @@ The API uses custom authorization policies to validate whether a token contains 
 
 Users and roles need to be configured in order to authorize an user and create tokens.
 
-Use the `Api:Users` configuration section to configure Users authorization.
+Use the `Api:Users` configuration section to configure users and roles.
 
 ``` Json
 "Api": {
@@ -123,7 +123,7 @@ A guid that represents an unique user id.
 - **Username**  
 The username of the user.
 - **Password**  
-The password hash of the user. The hash is based on the Blowfish cipher. See code below to generate a hash.
+The password hash of the user. The hash is based on the [Blowfish cipher](https://en.wikipedia.org/wiki/Blowfish_(cipher)). See code below to generate a hash.
 - **Roles**  
 An array of user roles. Available roles are: `"User"` or `"Admin"`.
 
@@ -196,9 +196,11 @@ The url of the node. Default value is: `"ws://127.0.0.1:35998"`.
 The chain identifier the client uses when signing and sending transactions. Default value is: `1`.
 - **ProtocolVersion**  
 The protocol version the client uses when signing and sending transactions. Default value is: `1`.
-- **MaxPoWThreads**  
+- **MaxPoWThreads** [1]  
 The maximum number of PoW threads that can run simultaneously. Must be a value between 1 and 100. Default value is: `1`.
 
+
+> 1) PoW is calculated in order to send or receive transactions when the sending or receiving address does not have sufficient plasma.
 
 ### AutoReceiver
 
@@ -251,7 +253,7 @@ The timer interval the service checks whether the lock timeout has expired. Defa
 
 ### PlasmaBot
 
-The community plasma bot offers plasma as a service. It fuses QSR for a limited amount of time to an address.
+The community plasma bot offers plasma as a service. It generates plasma by fusing QSR for a limited amount of time to an address.
 
 A valid API key is needed to make use of the plasma bot service.
 
@@ -278,14 +280,14 @@ The api key of the plasma-bot api.
 
 ## API Documentation
 
-Once the Zenon Wallet API is installed, configured and running. Navigate to `https://localhost:443/swagger` with a browser to consult the interactief API Documentation.
+Once the Zenon Wallet API is installed, configured and running. Open a browser and navigate to `https://localhost:443/swagger` to consult the interactief API Documentation.
 
 
 ## Usage
 
-### To initialize or restore the wallet
+### To authenticate
 
-1. Authenticate an user with an admin role to create a token with an admin role claim.
+1. Authenticate an user to create a token.
 
 ```
 curl --location --request POST 'https://localhost/api/users/authenticate' \ 
@@ -294,8 +296,26 @@ curl --location --request POST 'https://localhost/api/users/authenticate' \
 	--data-raw '{"username": "admin","password": "admin" }'
 ```
 
-2. Use the token in the response for future requests in the `Authorization` header.
-3. Initialize the wallet.
+2. Use the token from the response and place it in the `Authorization` header for future requests.
+
+
+### To check wallet status
+
+1. Authenticate an user with an user role.
+2. Check wallet status.
+
+```
+curl --location --request GET 'https://localhost/api/wallet/status' \
+--header 'Content-Type: application/json' \
+--header 'Authorization: Bearer [enter token here]' \
+--header 'Accept: */*' \
+```
+
+
+### To create a new wallet
+
+1. Authenticate an user with an admin role.
+2. Create a new wallet.
 
 ```
 curl --location --request POST 'https://localhost/api/wallet/init' \
@@ -307,7 +327,13 @@ curl --location --request POST 'https://localhost/api/wallet/init' \
 }'
 ```
 
-or to restore:
+3. Check wallet status (should be initialized and unlocked).
+
+
+### To restore an existing wallet
+
+1. Authenticate an user with an admin role.
+2. Restore an existing wallet.
 
 ```
 curl --location --request POST 'https://localhost/api/wallet/restore' \
@@ -320,29 +346,13 @@ curl --location --request POST 'https://localhost/api/wallet/restore' \
 }'
 ```
 
-4. Check wallet status (should be initialized and unlocked).
-
-```
-curl --location --request GET 'https://localhost/api/wallet/status' \
---header 'Content-Type: application/json' \
---header 'Authorization: Bearer [enter token here]' \
---header 'Accept: */*' \
-```
+3. Check wallet status (should be initialized and unlocked).
 
 
 ### To unlock the wallet
 
-1. Authenticate an user with an user role to create a token with an user role claim.
-
-```
-curl --location --request POST 'https://localhost/api/users/authenticate' \ 
-	--header 'Content-Type: application/json' \ 
-	--header 'Accept: */*' \ 
-	--data-raw '{"username": "user","password": "user" }'
-```
-
-2. Use the token in the response for future requests in the `Authorization` header.
-3. Unlock the wallet.
+1. Authenticate an user with an user role.
+2. Unlock the wallet.
 
 ```
 curl --location --request POST 'https://localhost/api/wallet/unlock' \
@@ -354,14 +364,7 @@ curl --location --request POST 'https://localhost/api/wallet/unlock' \
 }'
 ```
 
-4. Check wallet status (should be initialized and unlocked).
-
-```
-curl --location --request GET 'https://localhost/api/wallet/status' \
---header 'Content-Type: application/json' \
---header 'Authorization: Bearer [enter token here]' \
---header 'Accept: */*' \
-```
+3. Check wallet status (should be initialized and unlocked).
 
 
 ## Contributing
