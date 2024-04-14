@@ -141,34 +141,6 @@ print(hashed_password)
 ```
 
 
-### Wallet
-
-A wallet needs to be initialized in order to properly interact with the Zenon Network.
-
-The endpoints `/api/wallet/init` or `/api/wallet/restore` are used to initialize a wallet and require the `Admin` role claim.
-
-Use the `Api:Wallet` configuration section to configure the wallet.
-
-``` Json
-"Api": {
-  "Wallet": {
-    "Path": "~/.znn/wallet",
-    "Name": "api",
-    "EraseLimit": 3,
-  }
-}
-```
-
-**Options:**
-
-- **Path**  
-The directory path to store the encrypted wallet file.
-- **Name**  
-The name of the encrypted wallet file.
-- **EraseLimit**  
-The number of unlock attempts before the wallet is uninitialized. Default value is: `3`. Can be `null`.
-
-
 ### Node
 
 A node client needs to be configured in order to interact with the Zenon Network.
@@ -201,6 +173,35 @@ The maximum number of PoW threads that can run simultaneously. Must be a value b
 
 
 > 1) PoW is calculated in order to send or receive transactions when the sending or receiving address does not have sufficient plasma.
+
+
+### Wallet
+
+A wallet needs to be initialized in order to properly interact with the Zenon Network.
+
+The endpoints `/api/wallet/init` or `/api/wallet/restore` are used to initialize a wallet and require the `Admin` role claim.
+
+Use the `Api:Wallet` configuration section to configure the wallet.
+
+``` Json
+"Api": {
+  "Wallet": {
+    "Path": "~/.znn/wallet",
+    "Name": "api",
+    "EraseLimit": 3,
+  }
+}
+```
+
+**Options:**
+
+- **Path**  
+The directory path to store the encrypted wallet file.
+- **Name**  
+The name of the encrypted wallet file.
+- **EraseLimit**  
+The number of unlock attempts before the wallet is uninitialized. Default value is: `3`. Can be `null`.
+
 
 ### AutoReceiver
 
