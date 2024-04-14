@@ -5,12 +5,12 @@ A .NET based cross-platform Wallet API for interacting with Zenon Alphanet - Net
 ## Requirements
 
 - [Microsoft .NET 8.0](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
+- [Zenon Node](https://github.com/zenon-network/go-zenon)
 
 ## Dependencies
 
+- [Serilog logging for ASP.NET Core](https://github.com/serilog/serilog-aspnetcore)
 - [Zenon SDK for .NET](https://github.com/hypercore-one/znn_sdk_csharp)
-- [Zenon Node](https://github.com/zenon-network/go-zenon)
-- [Serilog](https://serilog.net/)
 
 ## Installation on Linux
 
@@ -35,12 +35,13 @@ The following documentation explains how to configure the Zenon Wallet API.
 
 Visit [Microsoft's Configuration in ASP.NET Core](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/configuration/?view=aspnetcore-8.0) for more information on how to configure ASP.NET Core.
 
+Visit [Serilog's Logging for ASP.NET Core](https://github.com/serilog/serilog-settings-configuration) for more information on how to configure Serilog logging for ASP.NET Core.
 
 ### Authentication
 
-The Zenon Wallet API implements [JWT](https://en.wikipedia.org/wiki/JSON_Web_Token) bearer authentication. The tokens hold claims and are signed using a private secret key.
+The Zenon Wallet API uses [JWT](https://en.wikipedia.org/wiki/JSON_Web_Token) bearer authentication. The tokens hold claims and are signed using a private secret key.
 
-By default tokens do not expire and require a private secret. 
+By default tokens do not expire and require a private secret to be configured. 
 
 Use the `Api:Jwt` configuration section to configure Jwt authentication.
 
@@ -277,7 +278,7 @@ The api key of the plasma-bot api.
 
 ## API Documentation
 
-Once the Zenon Wallet API is installed, configured and running. Navigate to `https://localhost:443/swagger` to consult the API Documentation.
+Once the Zenon Wallet API is installed, configured and running. Navigate to `https://localhost:443/swagger` with a browser to consult the interactief API Documentation.
 
 
 ## Usage
@@ -323,7 +324,7 @@ curl --location --request POST 'https://localhost/api/wallet/restore' \
 
 ```
 curl --location --request GET 'https://localhost/api/wallet/status' \
---header 'User-Agent: Apidog/1.0.0 (https://apidog.com)' \
+--header 'Content-Type: application/json' \
 --header 'Authorization: Bearer [enter token here]' \
 --header 'Accept: */*' \
 ```
@@ -357,7 +358,7 @@ curl --location --request POST 'https://localhost/api/wallet/unlock' \
 
 ```
 curl --location --request GET 'https://localhost/api/wallet/status' \
---header 'User-Agent: Apidog/1.0.0 (https://apidog.com)' \
+--header 'Content-Type: application/json' \
 --header 'Authorization: Bearer [enter token here]' \
 --header 'Accept: */*' \
 ```
