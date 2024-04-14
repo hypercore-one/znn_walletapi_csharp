@@ -172,7 +172,7 @@ The protocol version the client uses when signing and sending transactions. Defa
 The maximum number of PoW threads that can run simultaneously. Must be a value between 1 and 100. Default value is: `1`.
 
 
-> 1) PoW is calculated in order to send or receive transactions when the sending or receiving address does not have sufficient plasma.
+> 1) PoW is performed on the machine to generate plasma in order to send or receive transactions when the sending or receiving address does not have sufficient plasma.
 
 
 ### Wallet
