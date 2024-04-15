@@ -45,7 +45,7 @@ By default tokens do not expire and require a private secret to be configured.
 
 Use the `Api:Jwt` configuration section to configure Jwt authentication.
 
-``` Json
+``` json
 "Api": {
   "Jwt": {
     "Secret": "This is a sample secret key - please don't use in production environment."
@@ -97,7 +97,7 @@ Users and roles need to be configured in order to authorize an user and create t
 
 Use the `Api:Users` configuration section to configure users and roles.
 
-``` Json
+``` json
 "Api": {
   "Users": [
     {
@@ -149,7 +149,7 @@ The node client can either connect a local Zenon Node or connect an external nod
 
 Use the `Api:Node` configuration section to configure the node client.
 
-``` Json
+``` json
 "Api": {
   "Node": {
     "NodeUrl": "ws://127.0.0.1:35998",
@@ -183,7 +183,7 @@ The endpoints `/api/wallet/init` or `/api/wallet/restore` are used to initialize
 
 Use the `Api:Wallet` configuration section to configure the wallet.
 
-``` Json
+``` json
 "Api": {
   "Wallet": {
     "Path": "~/.znn/wallet",
@@ -209,7 +209,7 @@ The auto-receiver will receive transactions for subscribed accounts when the wal
 
 Use the `Api:AutoReceiver` configuration section to configure the auto-receiver.
 
-``` Json
+``` json
 "Api": {
   "AutoReceiver": {
     "Enabled": true,
@@ -232,7 +232,7 @@ The auto-locker automatically locks the wallet after a period of inactivity. A l
 
 Use the `Api:AutoLocker` configuration section to configure the auto-locker.
 
-``` Json
+``` json
 "Api": {
   "AutoLocker": {
     "Enabled": true,
@@ -260,7 +260,7 @@ A valid API key is needed to make use of the plasma-bot.
 
 Use the `Api:Utilities:PlasmaBot` configuration section to configure the plasma-bot.
 
-``` Json
+``` json
 "Api": {
   "Utilities": {
     "PlasmaBot": {
@@ -281,7 +281,7 @@ The api key of the plasma-bot api.
 
 ## API Documentation
 
-Once the Zenon Wallet API is installed, configured and running. Open a browser and navigate to `https://localhost:443/swagger` to consult the interactief API Documentation.
+Once the Zenon Wallet API is installed, configured and running. Open a browser and navigate to `https://localhost:443/swagger` to consult the interactive API Documentation.
 
 
 ## Usage
@@ -290,7 +290,7 @@ Once the Zenon Wallet API is installed, configured and running. Open a browser a
 
 1. Authenticate an user to create a token.
 
-```
+``` curl
 curl --location --request POST 'https://localhost/api/users/authenticate' \ 
 	--header 'Content-Type: application/json' \ 
 	--header 'Accept: */*' \ 
@@ -305,7 +305,7 @@ curl --location --request POST 'https://localhost/api/users/authenticate' \
 1. Authenticate an user with an user role.
 2. Check wallet status.
 
-```
+``` curl
 curl --location --request GET 'https://localhost/api/wallet/status' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Bearer [enter token here]' \
@@ -318,7 +318,7 @@ curl --location --request GET 'https://localhost/api/wallet/status' \
 1. Authenticate an user with an admin role.
 2. Create a new wallet.
 
-```
+``` curl
 curl --location --request POST 'https://localhost/api/wallet/init' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Bearer [enter token here]' \
@@ -336,7 +336,7 @@ curl --location --request POST 'https://localhost/api/wallet/init' \
 1. Authenticate an user with an admin role.
 2. Restore an existing wallet.
 
-```
+``` curl
 curl --location --request POST 'https://localhost/api/wallet/restore' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Bearer [enter token here]' \
@@ -355,7 +355,7 @@ curl --location --request POST 'https://localhost/api/wallet/restore' \
 1. Authenticate an user with an user role.
 2. Unlock the wallet.
 
-```
+``` curl
 curl --location --request POST 'https://localhost/api/wallet/unlock' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Bearer [enter token here]' \
