@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
+using System.Reflection;
 using Zenon.Model.Primitives;
 
 namespace ZenonWalletApi.Infrastructure.Registrations
@@ -10,6 +11,10 @@ namespace ZenonWalletApi.Infrastructure.Registrations
         {
             services.AddSwaggerGen(options =>
             {
+                var fileName = typeof(SwaggerRegistration).Assembly.GetName().Name;
+                var filePath = Path.Combine(AppContext.BaseDirectory, $"{fileName}.xml");
+                options.IncludeXmlComments(filePath);
+
                 options.MapType<Address>(() => new OpenApiSchema { Type = "string" });
                 options.MapType<TokenStandard>(() => new OpenApiSchema { Type = "string" });
                 options.MapType<Hash>(() => new OpenApiSchema { Type = "string" });

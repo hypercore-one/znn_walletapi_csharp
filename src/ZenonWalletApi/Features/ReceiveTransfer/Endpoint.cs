@@ -13,30 +13,8 @@ namespace ZenonWalletApi.Features.ReceiveTransfer
         public static IEndpointRouteBuilder MapReceiveTransferEndpoint(this IEndpointRouteBuilder endpoints)
         {
             endpoints
-                .MapPost("/{accountIndex}/receive", async (
-                    IWalletService wallet,
-                    INodeService client,
-                    [Validate] AccountIndex accountIndex,
-                    [FromBody][Validate] ReceiveTransferRequest request
-                    ) =>
-                    {
-                        await client.ConnectAsync();
-
-                        // Access wallet account from index
-                        var account = await wallet.GetAccountAsync(accountIndex.value);
-
-                        // Create receive block
-                        var block = AccountBlockTemplate.Receive(
-                            client.ProtocolVersion, client.ChainIdentifier,
-                            request.BlockHash);
-
-                        // Send block
-                        var response = await client.SendAsync(block, account);
-
-                        return response.ToJson();
-                    })
+                .MapPost("/{accountIndex}/receive", ReceiveTransferAsync)
                 .WithName("ReceiveTransfer")
-                .WithDescription("Manually receives an account block by block hash")
                 .Produces<JAccountBlockTemplate>(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
                 .Produces(StatusCodes.Status403Forbidden, typeof(string), contentType: "text/plain")
@@ -45,6 +23,33 @@ namespace ZenonWalletApi.Features.ReceiveTransfer
                 .ProducesValidationProblem()
                 .RequireAuthorization("User");
             return endpoints;
+        }
+
+        /// <remarks>
+        /// Manually receives an account block by block hash
+        /// <para>Requires User authorization policy</para>
+        /// <para>Requires Wallet to be initialized and unlocked</para>
+        /// </remarks>
+        public static async Task<JAccountBlockTemplate> ReceiveTransferAsync(
+            IWalletService wallet,
+            INodeService client,
+            [Validate] AccountIndex accountIndex,
+            [FromBody][Validate] ReceiveTransferRequest request)
+        {
+            await client.ConnectAsync();
+
+            // Access wallet account from index
+            var account = await wallet.GetAccountAsync(accountIndex.value);
+
+            // Create receive block
+            var block = AccountBlockTemplate.Receive(
+                client.ProtocolVersion, client.ChainIdentifier,
+                request.BlockHash);
+
+            // Send block
+            var response = await client.SendAsync(block, account);
+
+            return response.ToJson();
         }
     }
 }

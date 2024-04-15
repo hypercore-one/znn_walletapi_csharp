@@ -8,19 +8,23 @@ namespace ZenonWalletApi.Features.GetAutoReceiverStatus
         public static IEndpointRouteBuilder MapGetAutoReceiverStatusEndpoint(this IEndpointRouteBuilder endpoints)
         {
             endpoints
-                .MapGet("/status", (
-                    IAutoReceiverService service
-                    ) =>
-                    {
-                        return new AutoReceiverStatusResponse(service.IsEnabled);
-                    })
+                .MapGet("/status", GetAutoReceiverStatus)
                 .WithName("GetAutoReceiverStatus")
-                .WithDescription("Gets the auto-receiver status indicating whether the service is enabled")
                 .Produces<AutoReceiverStatusResponse>()
                 .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
                 .Produces(StatusCodes.Status403Forbidden, typeof(string), contentType: "text/plain")
                 .RequireAuthorization("User");
             return endpoints;
+        }
+
+        /// <remarks>
+        /// Gets the auto-receiver status indicating whether the service is enabled
+        /// <para>Requires User authorization policy</para>
+        /// </remarks>
+        public static AutoReceiverStatusResponse GetAutoReceiverStatus(
+            IAutoReceiverService service)
+        {
+            return new AutoReceiverStatusResponse(service.IsEnabled);
         }
     }
 }

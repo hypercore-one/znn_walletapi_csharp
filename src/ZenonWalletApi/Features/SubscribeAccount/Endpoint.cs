@@ -9,17 +9,8 @@ namespace ZenonWalletApi.Features.SubscribeAccount
         public static IEndpointRouteBuilder MapSubscribeAccountEndpoint(this IEndpointRouteBuilder endpoints)
         {
             endpoints
-                .MapPut("/{accountIndex}", async (
-                    IAutoReceiverService autoReceiver,
-                    [Validate] AccountIndex accountIndex
-                ) =>
-                {
-                    await autoReceiver.SubscribeAsync(accountIndex.value);
-
-                    return Results.Ok();
-                })
+                .MapPut("/{accountIndex}", SubscribeAccountAsync)
                 .WithName("SubscribeAccount")
-                .WithDescription("Subscribes an account to auto receive account blocks")
                 .Produces(StatusCodes.Status200OK, typeof(string), contentType: "text/plain")
                 .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
                 .Produces(StatusCodes.Status403Forbidden, typeof(string), contentType: "text/plain")
@@ -28,6 +19,20 @@ namespace ZenonWalletApi.Features.SubscribeAccount
                 .ProducesValidationProblem()
                 .RequireAuthorization("User");
             return endpoints;
+        }
+
+        /// <remarks>
+        /// Subscribes an account to auto-receive account blocks
+        /// <para>Requires User authorization policy</para>
+        /// <para>Requires Wallet to be initialized and unlocked</para>
+        /// </remarks>
+        public static async Task<IResult> SubscribeAccountAsync(
+            IAutoReceiverService autoReceiver,
+            [Validate] AccountIndex accountIndex)
+        {
+            await autoReceiver.SubscribeAsync(accountIndex.value);
+
+            return Results.Ok();
         }
     }
 }

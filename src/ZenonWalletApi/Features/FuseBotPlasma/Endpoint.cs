@@ -10,15 +10,8 @@ namespace ZenonWalletApi.Features.FuseBotPlasma
         public static IEndpointRouteBuilder MapFuseBotPlasmaEndpoint(this IEndpointRouteBuilder endpoints)
         {
             endpoints
-                .MapPost("/plasma-bot/fuse", async (
-                    IPlasmaBotService plasmaBot,
-                    [FromBody][Validate] FuseBotPlasmaRequest request
-                    ) =>
-                    {
-                        return await plasmaBot.FuseAsync(request.Address);
-                    })
+                .MapPost("/plasma-bot/fuse", FuseBotPlasmaAsync)
                 .WithName("FuseBotPlasma")
-                .WithDescription("Fuses QSR to an address to generate plasma using the community plasma-bot")
                 .Produces(StatusCodes.Status200OK, typeof(string), contentType: "text/plain")
                 .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
                 .Produces(StatusCodes.Status403Forbidden, typeof(string), contentType: "text/plain")
@@ -27,6 +20,17 @@ namespace ZenonWalletApi.Features.FuseBotPlasma
                 .ProducesValidationProblem()
                 .RequireAuthorization("User");
             return endpoints;
+        }
+
+        /// <remarks>
+        /// Generates plasma by fusing QSR to an address from the community plasma-bot
+        /// <para>Requires User authorization policy</para>
+        /// </remarks>
+        public static async Task<IResult> FuseBotPlasmaAsync(
+            IPlasmaBotService plasmaBot,
+            [FromBody][Validate] FuseBotPlasmaRequest request)
+        {
+            return await plasmaBot.FuseAsync(request.Address);
         }
     }
 }

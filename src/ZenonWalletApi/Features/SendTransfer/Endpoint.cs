@@ -18,75 +18,8 @@ namespace ZenonWalletApi.Features.SendTransfer
         public static IEndpointRouteBuilder MapSendTransferEndpoint(this IEndpointRouteBuilder endpoints)
         {
             endpoints
-                .MapPost("/{accountIndex}/send", async (
-                    IWalletService wallet,
-                    INodeService client,
-                    [Validate] AccountIndex accountIndex,
-                    [FromBody][Validate] SendTransferRequest request
-                    ) =>
-                    {
-                        await client.ConnectAsync();
-
-                        // Access wallet account
-                        var account = await wallet.GetAccountAsync(accountIndex.value);
-
-                        // Get wallet account address
-                        var address = await account.GetAddressAsync();
-
-                        BigInteger amount;
-                        if (request.TokenStandard == TokenStandard.ZnnZts ||
-                            request.TokenStandard == TokenStandard.QsrZts)
-                        {
-                            amount = AmountUtils.ExtractDecimals(request.Amount, Constants.CoinDecimals);
-                        }
-                        else
-                        {
-                            var token = await client.Api.Embedded.Token.GetByZts(request.TokenStandard);
-                            if (token == null)
-                            {
-                                throw new NotFoundException("Token does not exist");
-                            }
-                            amount = AmountUtils.ExtractDecimals(request.Amount, (int)token.Decimals);
-                        }
-
-                        // Retrieve account info
-                        var accountInfo = await client.Api.Ledger
-                            .GetAccountInfoByAddress(address);
-
-                        // Find balance info
-                        var balanceInfo = accountInfo.BalanceInfoList
-                            .FirstOrDefault(x => x.Token.TokenStandard == request.TokenStandard);
-
-                        // Check balance
-                        if (balanceInfo == null)
-                        {
-                            throw new NotFoundException($"You do not have any {request.TokenStandard} tokens");
-                        }
-                        else if (balanceInfo.Balance < amount)
-                        {
-                            if (balanceInfo.Balance == BigInteger.Zero)
-                            {
-                                throw new NotFoundException($"You do not have any {balanceInfo.Token.Symbol} tokens");
-                            }
-                            else
-                            {
-                                throw new NotFoundException($"You do not have enough {balanceInfo.Token.Symbol} tokens");
-                            }
-                        }
-
-                        // Create send block
-                        var block = AccountBlockTemplate.Send(
-                            client.ProtocolVersion, client.ChainIdentifier,
-                            request.Address, request.TokenStandard, amount);
-
-                        // Send block
-                        var response = await client.SendAsync(block, account);
-
-                        // Return block hash
-                        return response.ToJson();
-                    })
+                .MapPost("/{accountIndex}/send", SendTransferAsync)
                 .WithName("SendTransfer")
-                .WithDescription("Sends tokens to an address")
                 .Produces<JAccountBlockTemplate>(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
                 .Produces(StatusCodes.Status403Forbidden, typeof(string), contentType: "text/plain")
@@ -95,6 +28,78 @@ namespace ZenonWalletApi.Features.SendTransfer
                 .ProducesValidationProblem()
                 .RequireAuthorization("User");
             return endpoints;
+        }
+
+        /// <remarks>
+        /// Sends tokens to an address
+        /// <para>Requires User authorization policy</para>
+        /// <para>Requires Wallet to be initialized and unlocked</para>
+        /// </remarks>
+        public static async Task<JAccountBlockTemplate> SendTransferAsync(
+            IWalletService wallet,
+            INodeService client,
+            [Validate] AccountIndex accountIndex,
+            [FromBody][Validate] SendTransferRequest request)
+        {
+            await client.ConnectAsync();
+
+            // Access wallet account
+            var account = await wallet.GetAccountAsync(accountIndex.value);
+
+            // Get wallet account address
+            var address = await account.GetAddressAsync();
+
+            BigInteger amount;
+            if (request.TokenStandard == TokenStandard.ZnnZts ||
+                request.TokenStandard == TokenStandard.QsrZts)
+            {
+                amount = AmountUtils.ExtractDecimals(request.Amount, Constants.CoinDecimals);
+            }
+            else
+            {
+                var token = await client.Api.Embedded.Token.GetByZts(request.TokenStandard);
+                if (token == null)
+                {
+                    throw new NotFoundException("Token does not exist");
+                }
+                amount = AmountUtils.ExtractDecimals(request.Amount, (int)token.Decimals);
+            }
+
+            // Retrieve account info
+            var accountInfo = await client.Api.Ledger
+                .GetAccountInfoByAddress(address);
+
+            // Find balance info
+            var balanceInfo = accountInfo.BalanceInfoList
+                .FirstOrDefault(x => x.Token.TokenStandard == request.TokenStandard);
+
+            // Check balance
+            if (balanceInfo == null)
+            {
+                throw new NotFoundException($"You do not have any {request.TokenStandard} tokens");
+            }
+            else if (balanceInfo.Balance < amount)
+            {
+                if (balanceInfo.Balance == BigInteger.Zero)
+                {
+                    throw new NotFoundException($"You do not have any {balanceInfo.Token.Symbol} tokens");
+                }
+                else
+                {
+                    throw new NotFoundException($"You do not have enough {balanceInfo.Token.Symbol} tokens");
+                }
+            }
+
+            // Create send block
+            var block = AccountBlockTemplate.Send(
+                client.ProtocolVersion, client.ChainIdentifier,
+                request.Address, request.TokenStandard, amount);
+
+            // Send block
+            var response = await client.SendAsync(block, account);
+
+            // Return block hash
+            return response.ToJson();
         }
     }
 }

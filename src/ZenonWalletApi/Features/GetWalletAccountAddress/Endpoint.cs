@@ -10,18 +10,8 @@ namespace ZenonWalletApi.Features.GetWalletAccountAddress
         public static IEndpointRouteBuilder MapGetWalletAccountAddressEndpoint(this IEndpointRouteBuilder endpoints)
         {
             endpoints
-                .MapPost(
-                    "/{accountIndex}/address", async (
-                        IWalletService wallet,
-                        [Validate] AccountIndex accountIndex
-                    ) =>
-                    {
-                        var address = await wallet.GetAccountAddressAsync(accountIndex.value);
-
-                        return new WalletAccountAddressResponse(address);
-                    })
+                .MapPost("/{accountIndex}/address", GetWalletAccountAddressAsync)
                 .WithName("GetWalletAccountAddress")
-                .WithDescription("Gets the wallet account address by account index")
                 .Produces<WalletAccountAddressResponse>()
                 .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
                 .Produces(StatusCodes.Status403Forbidden, typeof(string), contentType: "text/plain")
@@ -29,6 +19,20 @@ namespace ZenonWalletApi.Features.GetWalletAccountAddress
                 .ProducesValidationProblem()
                 .RequireAuthorization("User");
             return endpoints;
+        }
+
+        /// <remarks>
+        /// Gets the wallet account address by account index
+        /// <para>Requires User authorization policy</para>
+        /// <para>Requires Wallet to be initialized and unlocked</para>
+        /// </remarks>
+        public static async Task<WalletAccountAddressResponse> GetWalletAccountAddressAsync(
+            IWalletService wallet,
+            [Validate] AccountIndex accountIndex)
+        {
+            var address = await wallet.GetAccountAddressAsync(accountIndex.value);
+
+            return new WalletAccountAddressResponse(address);
         }
     }
 }

@@ -9,18 +9,8 @@ namespace ZenonWalletApi.Features.InitializeWallet
         public static IEndpointRouteBuilder MapInitializeWalletEndpoint(this IEndpointRouteBuilder endpoints)
         {
             endpoints
-                .MapPost(
-                    "/init", async (
-                        IWalletService service,
-                        [Validate] InitWalletRequest request
-                    ) =>
-                    {
-                        var mnemonic = await service.InitAsync(request.Password);
-
-                        return new InitWalletResponse(mnemonic);
-                    })
+                .MapPost("/init", InitializeWalletAsync)
                 .WithName("InitializeWallet")
-                .WithDescription("Initializes a new wallet")
                 .Produces<InitWalletResponse>()
                 .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
                 .Produces(StatusCodes.Status403Forbidden, typeof(string), contentType: "text/plain")
@@ -28,6 +18,19 @@ namespace ZenonWalletApi.Features.InitializeWallet
                 .ProducesValidationProblem()
                 .RequireAuthorization("Admin");
             return endpoints;
+        }
+
+        /// <remarks>
+        /// Initializes a new wallet
+        /// <para>Requires Admin authorization policy</para>
+        /// </remarks>
+        public static async Task<InitWalletResponse> InitializeWalletAsync(
+            IWalletService service,
+            [Validate] InitWalletRequest request)
+        {
+            var mnemonic = await service.InitAsync(request.Password);
+
+            return new InitWalletResponse(mnemonic);
         }
     }
 }
