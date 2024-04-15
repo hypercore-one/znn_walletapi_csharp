@@ -59,15 +59,15 @@ Use the `Api:Jwt` configuration section to configure Jwt authentication.
 
 **Options:**
 
-- **Secret**  
+- `Secret` **string** *required*  
 Sets the issuer security key that is to be used for signature validation.
-- **ValidIssuer**  
+- `ValidIssuer` **string** *optional*  
 Sets a string that represents a valid issuer that will be used to check against the token's issuer. Default value is: `"zenon.wallet.api"`.
-- **ValudAudience**  
+- `ValudAudience` **string** *optional*  
 Sets a string that represents a valid audience that will be used to check against the token's audience. Default value is: `"zenon.network"`.
-- **ExpiresOn**  
+- `ExpiresOn` **datetime** *optional*  
 Sets the expiration datetime in UTC when tokens expire. Cannot be used simultaneously with `ExpiresAfter`. Default value is: `null`.
-- **ExpiresAfter**  
+- `ExpiresAfter` **timespan** *optional*  
 Sets the expiration timespan when tokens expire. Cannot be used simultaneously with `ExpiresOn`. Default value is: `null`.
 
 
@@ -118,13 +118,13 @@ Use the `Api:Users` configuration section to configure users and roles.
 
 **Options**:
 
-- **Id**  
+- `Id` **guid** *required*  
 A guid that represents an unique user id.
-- **Username**  
+- `Username` **string** *required*  
 The username of the user.
-- **Password**  
+- `PasswordHash` **string** *required*  
 The password hash of the user. The hash is based on the [Blowfish cipher](https://en.wikipedia.org/wiki/Blowfish_(cipher)). See code below how to generate a password hash.
-- **Roles**  
+- `Roles` **string[]** *required*  
 An array of user roles. Available roles are: `"User"` and `"Admin"`.
 
 
@@ -162,17 +162,17 @@ Use the `Api:Node` configuration section to configure the node client.
 
 **Options:**
 
-- **NodeUrl**  
+- `NodeUrl` **uri** *optional*  
 The url of the node. Default value is: `"ws://127.0.0.1:35998"`.
-- **ChainId**  
+- `ChainId`  **int** *optional*  
 The chain identifier the client uses when signing and sending transactions. Default value is: `1`.
-- **ProtocolVersion**  
+- `ProtocolVersion` **int** *optional*  
 The protocol version the client uses when signing and sending transactions. Default value is: `1`.
-- **MaxPoWThreads** [1]  
-The maximum number of PoW threads that can run simultaneously. Must be a value between 1 and 100. Default value is: `5`.
+- `MaxPoWThreads` **int** *optional* [^1]  
+The maximum number of PoW threads that can run simultaneously. Must be a value between `1` and `100`. Default value is: `5`.
 
 
-> 1) PoW is performed on the machine to generate plasma in order to send or receive transactions when the sending or receiving address does not have sufficient plasma.
+[^1] PoW is performed on the machine to generate plasma in order to send or receive transactions when the sending or receiving address does not have sufficient plasma.
 
 
 ### Wallet
@@ -195,13 +195,14 @@ Use the `Api:Wallet` configuration section to configure the wallet.
 
 **Options:**
 
-- **Path**  
-The directory path to store the encrypted wallet file.
-- **Name**  
-The name of the encrypted wallet file.
-- **EraseLimit**  
+- `Path` **string** *optioanl*  
+The directory path to store the encrypted wallet file. Default value is: `"~/.znn/wallet"`. [^2]
+- `Name` **string** *optional*  
+The name of the encrypted wallet file. Default value is: `"api"`.
+- `EraseLimit` **int** *optional*  
 The number of unlock attempts before the wallet is uninitialized. Default value is: `3`. Can be `null`.
 
+[^2] The default value varies depending on being used.
 
 ### AutoReceiver
 
@@ -220,9 +221,9 @@ Use the `Api:AutoReceiver` configuration section to configure the auto-receiver.
 
 **Options:**
 
-- **Enabled**  
+- `Enabled` **boolean** *optional*  
 Determines whether or not the auto-receiver service is enabled. Default value is: `true`.
-- **TimerInterval**  
+- `TimerInterval` **timespan** *optional*  
 The timer interval the service checks whether new transactions are available to process. Default value is: `"00:00:05"`.
 
 
@@ -244,11 +245,11 @@ Use the `Api:AutoLocker` configuration section to configure the auto-locker.
 
 **Options:**
 
-- **Enabled**  
+- `Enabled` **boolean** *optional*  
 Determines whether or not the auto-receiver service is enabled. Default value is: `true`.
-- **LockTimeout**  
+- `LockTimeout` **timespan** *optional*  
 The lock timeout determines the amount of time of wallet inactivity before the wallet is locked. Default value is: `"00:05:00"`.
-- **TimerInterval**  
+- `TimerInterval` **timespan** *optional*  
 The timer interval the service checks whether the lock timeout has expired. Default value is: `"00:00:05"`.
 
 
@@ -264,8 +265,8 @@ Use the `Api:Utilities:PlasmaBot` configuration section to configure the plasma-
 "Api": {
   "Utilities": {
     "PlasmaBot": {
-      "ApiUrl": "https://zenonhub.io/api/utilities/plasma-bot/",
-      "ApiKey": "[API KEY]"
+      "ApiKey": "[API KEY]",
+      "ApiUrl": "https://zenonhub.io/api/utilities/plasma-bot/"
     }
   }
 }
@@ -273,10 +274,10 @@ Use the `Api:Utilities:PlasmaBot` configuration section to configure the plasma-
 
 **Options:**
 
-- **ApiUrl**  
-The base url of the plasma-bot api. Default value is: `https://zenonhub.io/api/utilities/plasma-bot/`.
-- **ApiKey**  
+- `ApiKey` **string** *required*  
 The api key of the plasma-bot api.
+- `ApiUrl` **uri** *optional*  
+The base url of the plasma-bot api. Default value is: `https://zenonhub.io/api/utilities/plasma-bot/`.
 
 
 ## API Documentation
