@@ -62,7 +62,7 @@ Use the `Api:Jwt` configuration section to configure Jwt authentication.
 - `Secret` **string** *required*  
 Sets the issuer security key that is to be used for signature validation.
 - `ValidIssuer` **string** *optional*  
-Sets a string that represents a valid issuer that will be used to check against the token's issuer. Default value is: `"zenon.wallet.api"`.
+Sets a string that represents a valid issuer that will be used to check against the token's issuer. Default value is: `"walletapi.zenon.network"`.
 - `ValudAudience` **string** *optional*  
 Sets a string that represents a valid audience that will be used to check against the token's audience. Default value is: `"zenon.network"`.
 - `ExpiresOn` **datetime** *optional*  
