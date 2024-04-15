@@ -355,7 +355,7 @@ curl --location --request POST 'https://localhost/api/wallet/restore' \
 1. Authenticate an user with an user role.
 2. Unlock the wallet.
 
-``` curl
+``` shell
 curl --location --request POST 'https://localhost/api/wallet/unlock' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Bearer [enter token here]' \
