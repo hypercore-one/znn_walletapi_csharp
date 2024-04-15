@@ -202,7 +202,7 @@ The name of the encrypted wallet file. Default value is: `"api"`.
 - `EraseLimit` **int** *optional*  
 The number of unlock attempts before the wallet is uninitialized. Default value is: `3`. Can be `null`.
 
-[^2]: The default value varies depending on being used.
+[^2]: The default value varies depending on the OS being used.
 
 ### AutoReceiver
 
