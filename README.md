@@ -168,11 +168,11 @@ The url of the node. Default value is: `"ws://127.0.0.1:35998"`.
 The chain identifier the client uses when signing and sending transactions. Default value is: `1`.
 - `ProtocolVersion` **int** *optional*  
 The protocol version the client uses when signing and sending transactions. Default value is: `1`.
-- `MaxPoWThreads` **int** *optional* [^1]  
+- `MaxPoWThreads` **int** *optional*[^1]  
 The maximum number of PoW threads that can run simultaneously. Must be a value between `1` and `100`. Default value is: `5`.
 
 
-[^1] PoW is performed on the machine to generate plasma in order to send or receive transactions when the sending or receiving address does not have sufficient plasma.
+[^1]: PoW is performed on the machine to generate plasma in order to send or receive transactions when the sending or receiving address does not have sufficient plasma.
 
 
 ### Wallet
@@ -196,13 +196,13 @@ Use the `Api:Wallet` configuration section to configure the wallet.
 **Options:**
 
 - `Path` **string** *optioanl*  
-The directory path to store the encrypted wallet file. Default value is: `"~/.znn/wallet"`. [^2]
+The directory path to store the encrypted wallet file. Default value is: `"~/.znn/wallet"`[^2].  
 - `Name` **string** *optional*  
 The name of the encrypted wallet file. Default value is: `"api"`.
 - `EraseLimit` **int** *optional*  
 The number of unlock attempts before the wallet is uninitialized. Default value is: `3`. Can be `null`.
 
-[^2] The default value varies depending on being used.
+[^2]: The default value varies depending on being used.
 
 ### AutoReceiver
 
