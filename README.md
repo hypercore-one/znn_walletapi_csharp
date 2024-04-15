@@ -290,7 +290,7 @@ Once the Zenon Wallet API is installed, configured and running. Open a browser a
 
 1. Authenticate an user to create a token.
 
-``` curl
+``` shell
 curl --location --request POST 'https://localhost/api/users/authenticate' \ 
 	--header 'Content-Type: application/json' \ 
 	--header 'Accept: */*' \ 
@@ -305,7 +305,7 @@ curl --location --request POST 'https://localhost/api/users/authenticate' \
 1. Authenticate an user with an user role.
 2. Check wallet status.
 
-``` curl
+``` shell
 curl --location --request GET 'https://localhost/api/wallet/status' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Bearer [enter token here]' \
@@ -318,7 +318,7 @@ curl --location --request GET 'https://localhost/api/wallet/status' \
 1. Authenticate an user with an admin role.
 2. Create a new wallet.
 
-``` curl
+``` shell
 curl --location --request POST 'https://localhost/api/wallet/init' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Bearer [enter token here]' \
@@ -336,7 +336,7 @@ curl --location --request POST 'https://localhost/api/wallet/init' \
 1. Authenticate an user with an admin role.
 2. Restore an existing wallet.
 
-``` curl
+``` shell
 curl --location --request POST 'https://localhost/api/wallet/restore' \
 --header 'Content-Type: application/json' \
 --header 'Authorization: Bearer [enter token here]' \
