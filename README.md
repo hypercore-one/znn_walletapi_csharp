@@ -49,7 +49,7 @@ Use the `Api:Jwt` configuration section to configure Jwt authentication.
 "Api": {
   "Jwt": {
     "Secret": "This is a sample secret key - please don't use in production environment."
-    "ValidIssuer": "zenon.wallet.api"
+    "ValidIssuer": "walletapi.zenon.network"
     "ValidAudience": "zenon.network"
     "ExpiresOn": null
     "ExpiresAfter": null
@@ -123,9 +123,9 @@ A guid that represents an unique user id.
 - **Username**  
 The username of the user.
 - **Password**  
-The password hash of the user. The hash is based on the [Blowfish cipher](https://en.wikipedia.org/wiki/Blowfish_(cipher)). See code below to generate a hash.
+The password hash of the user. The hash is based on the [Blowfish cipher](https://en.wikipedia.org/wiki/Blowfish_(cipher)). See code below how to generate a password hash.
 - **Roles**  
-An array of user roles. Available roles are: `"User"` or `"Admin"`.
+An array of user roles. Available roles are: `"User"` and `"Admin"`.
 
 
 Use the following Python code to generate a password hash.
@@ -169,7 +169,7 @@ The chain identifier the client uses when signing and sending transactions. Defa
 - **ProtocolVersion**  
 The protocol version the client uses when signing and sending transactions. Default value is: `1`.
 - **MaxPoWThreads** [1]  
-The maximum number of PoW threads that can run simultaneously. Must be a value between 1 and 100. Default value is: `1`.
+The maximum number of PoW threads that can run simultaneously. Must be a value between 1 and 100. Default value is: `5`.
 
 
 > 1) PoW is performed on the machine to generate plasma in order to send or receive transactions when the sending or receiving address does not have sufficient plasma.
@@ -222,7 +222,7 @@ Use the `Api:AutoReceiver` configuration section to configure the auto-receiver.
 
 - **Enabled**  
 Determines whether or not the auto-receiver service is enabled. Default value is: `true`.
-- **TimeInterval**  
+- **TimerInterval**  
 The timer interval the service checks whether new transactions are available to process. Default value is: `"00:00:05"`.
 
 
@@ -248,17 +248,17 @@ Use the `Api:AutoLocker` configuration section to configure the auto-locker.
 Determines whether or not the auto-receiver service is enabled. Default value is: `true`.
 - **LockTimeout**  
 The lock timeout determines the amount of time of wallet inactivity before the wallet is locked. Default value is: `"00:05:00"`.
-- **TimeInterval**  
+- **TimerInterval**  
 The timer interval the service checks whether the lock timeout has expired. Default value is: `"00:00:05"`.
 
 
 ### PlasmaBot
 
-The community plasma bot offers plasma as a service. It generates plasma by fusing QSR for a limited amount of time to an address.
+The community plasma-bot offers plasma as a service. It generates plasma by fusing QSR for a limited amount of time to an address.
 
-A valid API key is needed to make use of the plasma bot service.
+A valid API key is needed to make use of the plasma-bot.
 
-Use the `Api:Utilities:PlasmaBot` configuration section to configure the auto-locker.
+Use the `Api:Utilities:PlasmaBot` configuration section to configure the plasma-bot.
 
 ``` Json
 "Api": {

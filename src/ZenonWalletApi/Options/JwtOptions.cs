@@ -7,7 +7,7 @@ namespace ZenonWalletApi.Options
     {
         public const string Jwt = "Api:Jwt";
 
-        public const string DefaultValidIssuer = "zenon.wallet.api";
+        public const string DefaultValidIssuer = "walletapi.zenon.network";
         public const string DefaultValidAudience = "zenon.network";
 
         [Required]
