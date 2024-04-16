@@ -5,6 +5,9 @@ namespace ZenonWalletApi.Models
 {
     public record UnlockWalletRequest
     {
+        /// <summary>
+        /// The password of the wallet
+        /// </summary>
         [Required]
         public required string Password { get; set; }
 

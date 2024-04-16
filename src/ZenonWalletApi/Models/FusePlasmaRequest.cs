@@ -7,9 +7,17 @@ namespace ZenonWalletApi.Models
 {
     public record FusePlasmaRequest
     {
+        /// <summary>
+        /// The beneficiary address
+        /// </summary>
+        /// <example>z1qqjnwjjpnue8xmmpanz6csze6tcmtzzdtfsww7</example>
         [Required]
         public required Address Address { get; set; }
 
+        /// <summary>
+        /// The amount of QSR to fuse
+        /// </summary>
+        /// <example>100</example>
         [Required]
         public required string Amount { get; set; }
 

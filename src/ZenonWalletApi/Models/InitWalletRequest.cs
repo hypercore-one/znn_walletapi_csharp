@@ -6,6 +6,9 @@ namespace ZenonWalletApi.Models
 {
     public record InitWalletRequest
     {
+        /// <summary>
+        /// The passsword of the wallet
+        /// </summary>
         [Required]
         [MinLength(8), MaxLength(255)]
         public required string Password { get; set; }

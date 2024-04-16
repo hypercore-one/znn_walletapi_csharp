@@ -5,9 +5,17 @@ namespace ZenonWalletApi.Models
 {
     public record AuthenticateRequest
     {
+        /// <summary>
+        /// The username of the user
+        /// </summary>
+        /// <exmple>user</exmple>
         [Required]
         public required string Username { get; set; }
 
+        /// <summary>
+        /// The password of the user
+        /// </summary>
+        /// <exmple>user</exmple>
         [Required]
         public required string Password { get; set; }
 

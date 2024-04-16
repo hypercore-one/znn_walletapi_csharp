@@ -8,12 +8,23 @@ namespace ZenonWalletApi.Models
 {
     public record SendTransferRequest
     {
+        /// <summary>
+        /// The beneficiary address
+        /// </summary>
         [Required]
         public required Address Address { get; set; }
 
+        /// <summary>
+        /// The amount to send
+        /// </summary>
+        /// <example>10.05</example>
         [Required]
         public required string Amount { get; set; }
 
+        /// <summary>
+        /// The token to send
+        /// </summary>
+        /// <example>QSR</example>
         [DefaultValue("ZNN")]
         public TokenStandard? TokenStandard { get; set; } = TokenStandard.ZnnZts;
 
