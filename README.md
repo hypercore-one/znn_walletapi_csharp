@@ -14,7 +14,7 @@ A .NET based cross-platform Wallet API for interacting with Zenon Alphanet - Net
 
 ## Documentation
 
-Visit the [online API documentation](https://walletapi-docs.hypercore.one) for a full overview of the API.
+Visit the [online API documentation](http://walletapi-docs.hypercore.one) for a full overview of the API.
 
 An user account is required to use the [online API](https://walletapi.hypercore.one) directly. Contact us if you want to try it out.
 
