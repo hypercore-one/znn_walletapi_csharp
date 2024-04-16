@@ -21,8 +21,10 @@ namespace ZenonWalletApi.Features.GetWalletAccountAddress
             return endpoints;
         }
 
+        /// <summary>
+        /// Get a wallet account address by account index
+        /// </summary>
         /// <remarks>
-        /// Gets the wallet account address by account index
         /// <para>Requires User authorization policy</para>
         /// <para>Requires Wallet to be initialized and unlocked</para>
         /// </remarks>

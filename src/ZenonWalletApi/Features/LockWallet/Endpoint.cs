@@ -16,8 +16,11 @@ namespace ZenonWalletApi.Features.LockWallet
             return endpoints;
         }
 
+        /// <summary>
+        /// Lock the wallet
+        /// </summary>
         /// <remarks>
-        /// Locks the wallet
+        /// <para>Locking the wallet unloads it from memory</para>
         /// <para>Requires User authorization policy</para>
         /// </remarks>
         public static async Task<IResult> LockWalletAsync(

@@ -21,8 +21,11 @@ namespace ZenonWalletApi.Features.GetAccountInfo
             return endpoints;
         }
 
+        /// <summary>
+        /// Get the account info by address
+        /// </summary>
         /// <remarks>
-        /// Gets the account height and token balances by address
+        /// <para>Get the account height and token balances by address</para>
         /// <para>Requires User authorization policy</para>
         /// </remarks>
         public static async Task<JAccountInfo> GetAccountInfoAsync(

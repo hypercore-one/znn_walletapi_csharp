@@ -10,7 +10,6 @@ namespace ZenonWalletApi.Features.GetWalletStatus
             endpoints
                 .MapGet("/status", GetWalletStatus)
                 .WithName("GetWalletStatus")
-                .WithDescription("Gets the wallet status indicating whether the wallet is initialized and unlocked")
                 .Produces<WalletStatusResponse>()
                 .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
                 .Produces(StatusCodes.Status403Forbidden, typeof(string), contentType: "text/plain")
@@ -18,8 +17,10 @@ namespace ZenonWalletApi.Features.GetWalletStatus
             return endpoints;
         }
 
+        /// <summary>
+        /// Get the wallet status
+        /// </summary>
         /// <remarks>
-        /// Gets the wallet status indicating whether the wallet is initialized and unlocked
         /// <para>Requires User authorization policy</para>
         /// </remarks>
         public static WalletStatusResponse GetWalletStatus(

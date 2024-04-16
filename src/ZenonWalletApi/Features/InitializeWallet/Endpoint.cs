@@ -20,8 +20,11 @@ namespace ZenonWalletApi.Features.InitializeWallet
             return endpoints;
         }
 
+        /// <summary>
+        /// Initialize a new wallet
+        /// </summary>
         /// <remarks>
-        /// Initializes a new wallet
+        /// <para>Initializing a wallet creates a new encrypted wallet file with a random seed</para>
         /// <para>Requires Admin authorization policy</para>
         /// </remarks>
         public static async Task<InitWalletResponse> InitializeWalletAsync(

@@ -20,8 +20,11 @@ namespace ZenonWalletApi.Features.UnlockWallet
             return endpoints;
         }
 
+        /// <summary>
+        /// Unlock the wallet
+        /// </summary>
         /// <remarks>
-        /// Unlocks the wallet
+        /// <para>Unlocking the wallet will decrypt the encrypted wallet file and load it to memory</para>
         /// <para>Requires User authorization policy</para>
         /// <para>Requires Wallet to be initialized</para>
         /// </remarks>

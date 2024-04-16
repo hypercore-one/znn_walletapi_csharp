@@ -24,8 +24,11 @@ namespace ZenonWalletApi.Features.CancelPlasma
             return endpoints;
         }
 
+        /// <summary>
+        /// Cancel a plasma fusion
+        /// </summary>
         /// <remarks>
-        /// Cancels a plasma fusion and receive the QSR back
+        /// <para>The QSR used for the plasma fusion is send back</para>
         /// <para>Requires User authorization policy</para>
         /// <para>Requires Wallet to be initialized and unlocked</para>
         /// </remarks>

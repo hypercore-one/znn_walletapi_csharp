@@ -25,8 +25,10 @@ namespace ZenonWalletApi.Features.ReceiveTransfer
             return endpoints;
         }
 
+        /// <summary>
+        /// Receive an account block by block hash
+        /// </summary>
         /// <remarks>
-        /// Manually receives an account block by block hash
         /// <para>Requires User authorization policy</para>
         /// <para>Requires Wallet to be initialized and unlocked</para>
         /// </remarks>

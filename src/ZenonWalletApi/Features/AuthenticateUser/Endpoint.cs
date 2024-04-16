@@ -18,9 +18,9 @@ namespace ZenonWalletApi.Features.AuthenticateUser
             return endpoints;
         }
 
-        /// <remarks>
-        /// Authenticates an user
-        /// </remarks>
+        /// <summary>
+        /// Authenticate an user
+        /// </summary>
         public static async Task<IResult> AuthenticateUserAsync(IUserService users, [Validate] AuthenticateRequest request)
         {
             var result = await users.AuthenticateAsync(request);

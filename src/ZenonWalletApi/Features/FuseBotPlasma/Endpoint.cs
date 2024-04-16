@@ -22,8 +22,11 @@ namespace ZenonWalletApi.Features.FuseBotPlasma
             return endpoints;
         }
 
+        /// <summary>
+        /// Generate plasma by fusing QSR from the plasma-bot
+        /// </summary>
         /// <remarks>
-        /// Generates plasma by fusing QSR to an address from the community plasma-bot
+        /// <para>Generate plasma for a limited amount of time to an address by fusing QSR from the community plasma-bot</para>
         /// <para>Requires User authorization policy</para>
         /// </remarks>
         public static async Task<IResult> FuseBotPlasmaAsync(

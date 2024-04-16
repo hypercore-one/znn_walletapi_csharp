@@ -22,8 +22,10 @@ namespace ZenonWalletApi.Features.GetUnreceivedAccountBlocks
             return endpoints;
         }
 
+        /// <summary>
+        /// Get all unreceived account blocks by address
+        /// </summary>
         /// <remarks>
-        /// Gets the unreceived account blocks by address
         /// <para>Requires User authorization policy</para>
         /// </remarks>
         public static async Task<JAccountBlockList> GetUnreceivedAccountBlocksAsync(

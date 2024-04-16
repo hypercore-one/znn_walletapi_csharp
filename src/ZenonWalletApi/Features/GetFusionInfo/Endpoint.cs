@@ -13,7 +13,6 @@ namespace ZenonWalletApi.Features.GetFusionInfo
             endpoints
                 .MapGet("/{address}/fused", GetFusionInfoAsync)
                 .WithName("GetFusionInfo")
-                .WithDescription("Gets the fusion entries of the supplied address")
                 .Produces<JFusionEntryList>(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
                 .Produces(StatusCodes.Status403Forbidden, typeof(string), contentType: "text/plain")
@@ -23,8 +22,10 @@ namespace ZenonWalletApi.Features.GetFusionInfo
             return endpoints;
         }
 
+        /// <summary>
+        /// Get all fusion entries by address
+        /// </summary>
         /// <remarks>
-        /// Gets the fusion entries of the supplied address
         /// <para>Requires User authorization policy</para>
         /// </remarks>
         public static async Task<JFusionEntryList> GetFusionInfoAsync(

@@ -21,8 +21,11 @@ namespace ZenonWalletApi.Features.GetPlasmaInfo
             return endpoints;
         }
 
+        /// <summary>
+        /// Get plasma info by address
+        /// </summary>
         /// <remarks>
-        /// Gets the current plasma, max plasma and fused qsr amount of the supplied address
+        /// <para>Get the current plasma, max plasma and fused QSR amount of the supplied address</para>
         /// <para>Requires User authorization policy</para>
         /// </remarks>
         public static async Task<JPlasmaInfo> GetPlasmaInfoAsync(

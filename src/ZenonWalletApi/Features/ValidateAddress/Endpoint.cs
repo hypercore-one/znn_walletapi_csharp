@@ -10,15 +10,18 @@ namespace ZenonWalletApi.Features.ValidateAddress
             endpoints
                 .MapPost("/address/validate", ValidateAddress)
                 .WithName("ValidateAddress")
-                .Produces(StatusCodes.Status200OK, typeof(string), contentType: "text/plain")
+                .Produces<ValidateAddressResponse>(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
                 .Produces(StatusCodes.Status403Forbidden, typeof(string), contentType: "text/plain")
                 .RequireAuthorization("User");
             return endpoints;
         }
 
+        /// <summary>
+        /// Validate an address
+        /// </summary>
         /// <remarks>
-        /// Validates whether specified address is valid
+        /// <para>Validate whether the specified address is a valid Zenon embedded or user address</para>
         /// <para>Requires User authorization policy</para>
         /// </remarks>
         /// <param name="address" example="z1qqjnwjjpnue8xmmpanz6csze6tcmtzzdtfsww7">The address to validate</param>

@@ -30,8 +30,10 @@ namespace ZenonWalletApi.Features.SendTransfer
             return endpoints;
         }
 
+        /// <summary>
+        /// Send tokens to an address
+        /// </summary>
         /// <remarks>
-        /// Sends tokens to an address
         /// <para>Requires User authorization policy</para>
         /// <para>Requires Wallet to be initialized and unlocked</para>
         /// </remarks>

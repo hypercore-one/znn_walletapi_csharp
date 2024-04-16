@@ -20,8 +20,11 @@ namespace ZenonWalletApi.Features.RestoreWallet
             return endpoints;
         }
 
+        /// <summary>
+        /// Restore an existing wallet
+        /// </summary>
         /// <remarks>
-        /// Restores an existing wallet
+        /// <para>Restoring a wallet will unload and overwrite the previously initialized wallet</para>
         /// <para>Requires Admin authorization policy</para>
         /// </remarks>
         public static async Task<IResult> RestoreWalletAsync(

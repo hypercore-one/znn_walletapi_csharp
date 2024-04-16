@@ -21,8 +21,11 @@ namespace ZenonWalletApi.Features.SubscribeAccount
             return endpoints;
         }
 
+        /// <summary>
+        /// Subscribe a wallet account to auto-receive
+        /// </summary>
         /// <remarks>
-        /// Subscribes an account to auto-receive account blocks
+        /// <para>Subscribe a wallet account to auto-receive account blocks</para>
         /// <para>Requires User authorization policy</para>
         /// <para>Requires Wallet to be initialized and unlocked</para>
         /// </remarks>

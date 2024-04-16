@@ -17,8 +17,10 @@ namespace ZenonWalletApi.Features.GetAutoReceiverStatus
             return endpoints;
         }
 
+        /// <summary>
+        /// Get the auto-receiver status
+        /// </summary>
         /// <remarks>
-        /// Gets the auto-receiver status indicating whether the service is enabled
         /// <para>Requires User authorization policy</para>
         /// </remarks>
         public static AutoReceiverStatusResponse GetAutoReceiverStatus(

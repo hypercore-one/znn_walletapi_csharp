@@ -26,8 +26,11 @@ namespace ZenonWalletApi.Features.FusePlasma
             return endpoints;
         }
 
+        /// <summary>
+        /// Generate plasma by fusing QSR
+        /// </summary>
         /// <remarks>
-        /// Generates plasma by fusing QSR to an address
+        /// <para>Generate plasma to an address by fusing QSR</para>
         /// <para>Requires User authorization policy</para>
         /// <para>Requires Wallet to be initialized and unlocked</para>
         /// </remarks>
