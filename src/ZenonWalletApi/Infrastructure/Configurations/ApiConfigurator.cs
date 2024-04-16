@@ -19,6 +19,7 @@ using ZenonWalletApi.Features.SendTransfer;
 using ZenonWalletApi.Features.SubscribeAccount;
 using ZenonWalletApi.Features.UnlockWallet;
 using ZenonWalletApi.Features.UnsubscribeAccount;
+using ZenonWalletApi.Features.ValidateAddress;
 using ZenonWalletApi.Infrastructure.ExceptionHandlers;
 using ZenonWalletApi.Infrastructure.Filters;
 using ZenonWalletApi.Models.Converters;
@@ -139,7 +140,8 @@ namespace ZenonWalletApi.Infrastructure.Configurations
                 .MapCancelPlasmaEndpoint();
 
             root.MapGroup("/utilities").WithTags("Utilities")
-                .MapFuseBotPlasmaEndpoint();
+                .MapFuseBotPlasmaEndpoint()
+                .MapValidateAddressEndpoint();
 
             return root;
         }
