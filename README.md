@@ -14,9 +14,9 @@ A .NET based cross-platform Wallet API for interacting with Zenon Alphanet - Net
 
 ## Documentation
 
-Visit the [online API documentation](http://walletapi-docs.hypercore.one) for a full overview of the API.
+Visit the [online API documentation](https://walletapi.hypercore.one) for a full overview of the API.
 
-An user account is required to use the [online API](https://walletapi.hypercore.one) directly. Contact us if you want to try it out.
+An user account is required to use the [online API](https://walletapi.hypercore.one/swagger) directly. Contact us if you want to try it out.
 
 To consult the local API documentation, open a browser and navigate to `https://localhost:443/swagger` after the API is installed, configured and running.
 
