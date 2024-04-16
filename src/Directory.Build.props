@@ -9,8 +9,8 @@
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<EnableTrimAnalyzer>true</EnableTrimAnalyzer>
 		<OutputPath>..\..\bin\$(MSBuildProjectName)\$(Configuration.ToLower())\</OutputPath>
-		<ProjectUrl>https://zenon.network</ProjectUrl>
-		<RepositoryUrl>https://github.com/KingGorrin/znn_walletapi_csharp</RepositoryUrl>
+		<ProjectUrl>https://walletapi.hypercore.one</ProjectUrl>
+		<RepositoryUrl>https://github.com/hypercore-one/znn_walletapi_csharp</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>

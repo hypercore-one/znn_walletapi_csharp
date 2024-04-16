@@ -12,6 +12,15 @@ A .NET based cross-platform Wallet API for interacting with Zenon Alphanet - Net
 - [Serilog logging for ASP.NET Core](https://github.com/serilog/serilog-aspnetcore)
 - [Zenon SDK for .NET](https://github.com/hypercore-one/znn_sdk_csharp)
 
+## Documentation
+
+Visit the online [API documentation](https://walletapi-docs.hypercore.one) for a full overview of the API.
+
+An user account is required to use the online API directly. Contact us if you want to try it out.
+
+To consult the local API documentation, open a browser and navigate to `https://localhost:443/swagger` after the API is installed, configured and running.
+
+
 ## Installation on Linux
 
 ``` bash
@@ -276,11 +285,6 @@ Use the `Api:Utilities:PlasmaBot` configuration section to configure the plasma-
   }
 }
 ```
-
-
-## API Documentation
-
-Once the Zenon Wallet API is installed, configured and running. Open a browser and navigate to `https://localhost:443/swagger` to consult the interactive API Documentation.
 
 
 ## Usage
