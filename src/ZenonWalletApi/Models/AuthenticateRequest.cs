@@ -8,14 +8,14 @@ namespace ZenonWalletApi.Models
         /// <summary>
         /// The username of the user
         /// </summary>
-        /// <exmple>user</exmple>
+        /// <example>user</example>
         [Required]
         public required string Username { get; set; }
 
         /// <summary>
         /// The password of the user
         /// </summary>
-        /// <exmple>user</exmple>
+        /// <example>user</example>
         [Required]
         public required string Password { get; set; }
 

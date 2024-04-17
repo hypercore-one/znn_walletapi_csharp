@@ -9,6 +9,7 @@ namespace ZenonWalletApi.Models
         /// <summary>
         /// The password of the wallet
         /// </summary>
+        /// <example>Secret99$</example>
         [Required]
         [MinLength(8), MaxLength(255)]
         public required string Password { get; set; }
@@ -16,6 +17,7 @@ namespace ZenonWalletApi.Models
         /// <summary>
         /// The mnemonic of the wallet
         /// </summary>
+        /// <example>route become dream access impulse price inform obtain engage ski believe awful absent pig thing vibrant possible exotic flee pepper marble rural fire fancy</example>
         [Required]
         public required string Mnemonic { get; set; }
 

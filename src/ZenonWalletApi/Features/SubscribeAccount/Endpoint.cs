@@ -25,7 +25,7 @@ namespace ZenonWalletApi.Features.SubscribeAccount
         /// Subscribe a wallet account to auto-receive
         /// </summary>
         /// <remarks>
-        /// <para>Subscribe a wallet account to auto-receive account blocks</para>
+        /// <para>Subscribe a wallet account to auto-receive account blocks. Unreceived account blocks will only be received when the auto-receiver is enabled and the wallet unlocked.</para>
         /// <para>Requires User authorization policy</para>
         /// <para>Requires Wallet to be initialized and unlocked</para>
         /// </remarks>

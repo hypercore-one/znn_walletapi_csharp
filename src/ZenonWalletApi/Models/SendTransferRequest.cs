@@ -11,6 +11,7 @@ namespace ZenonWalletApi.Models
         /// <summary>
         /// The beneficiary address
         /// </summary>
+        /// <example>z1qqjnwjjpnue8xmmpanz6csze6tcmtzzdtfsww7</example>
         [Required]
         public required Address Address { get; set; }
 

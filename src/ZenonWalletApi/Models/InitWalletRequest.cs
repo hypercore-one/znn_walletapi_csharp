@@ -9,6 +9,7 @@ namespace ZenonWalletApi.Models
         /// <summary>
         /// The passsword of the wallet
         /// </summary>
+        /// <example>Secret99$</example>
         [Required]
         [MinLength(8), MaxLength(255)]
         public required string Password { get; set; }
