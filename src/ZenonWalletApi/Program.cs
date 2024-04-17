@@ -6,7 +6,8 @@ Log.Logger = SerilogConfigurator.CreateLogger();
 
 try
 {
-    Log.Logger.Information("Starting up");
+    Log.Logger.Information($"Version {ThisAssembly.AssemblyInformationalVersion}");
+    Log.Logger.Information($"Starting up");
     using var webHost = CreateWebHostBuilder(args).Build();
     await webHost.RunAsync();
 }
