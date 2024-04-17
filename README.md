@@ -2,6 +2,8 @@
 
 A .NET based cross-platform Wallet API for interacting with Zenon Alphanet - Network of Momentum Phase 1
 
+The Wallet API provides access to Zenon Node functionalities, including blockchain data retrieval, transaction submission, wallet management, and more. It offers a range of endpoints to interact with the Zenon Network programmatically.
+
 ## Requirements
 
 - [Microsoft .NET 8.0](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
@@ -14,12 +16,11 @@ A .NET based cross-platform Wallet API for interacting with Zenon Alphanet - Net
 
 ## Documentation
 
-Visit the [online API documentation](https://walletapi.hypercore.one) for a full overview of the API.
+To explore the endpoints without setting up your own Wallet API, you can visit the [online Wallet API](https://walletapi.hypercore.one). You can call the endpoints via the web interface in your browser by clicking Try it out.
 
-An user account is required to use the [online API](https://walletapi.hypercore.one/swagger) directly. Contact us if you want to try it out.
+> Note: to access protected API routes, an user account is required. Please contact us if you want to try it out.
 
-To consult the local API documentation, open a browser and navigate to `https://localhost:443/swagger` after the API is installed, configured and running.
-
+When the API is installed, configured and running, an user-friendly Swagger UI is available at `https://localhost:443/swagger/`.
 
 ## Installation on Linux
 
@@ -30,8 +31,8 @@ git clone https://github.com/hypercore-one/znn_walletapi_csharp.git
 
 cd znn_walletapi_csharp/src/ZenonWalletApi
 
-export Api__Jwt__Secret=""
-export Api__Utilities__PlasmaBot__ApiKey=""
+export Api__Jwt__Secret="[SECRET KEY]"
+export Api__Utilities__PlasmaBot__ApiKey="[API KEY]"
 
 dotnet build -c Release
 
