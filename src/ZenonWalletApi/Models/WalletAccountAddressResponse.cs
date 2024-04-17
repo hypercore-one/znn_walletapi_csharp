@@ -1,4 +1,5 @@
-﻿using Zenon.Model.Primitives;
+﻿using System.ComponentModel.DataAnnotations;
+using Zenon.Model.Primitives;
 
 namespace ZenonWalletApi.Models
 {
@@ -8,6 +9,7 @@ namespace ZenonWalletApi.Models
         /// The wallet account address
         /// </summary>
         /// <example>z1qqjnwjjpnue8xmmpanz6csze6tcmtzzdtfsww7</example>
+        [Required]
         public Address Address { get; } = Address;
     }
 }
