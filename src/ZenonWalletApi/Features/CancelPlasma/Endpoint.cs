@@ -12,7 +12,7 @@ namespace ZenonWalletApi.Features.CancelPlasma
         public static IEndpointRouteBuilder MapCancelPlasmaEndpoint(this IEndpointRouteBuilder endpoints)
         {
             endpoints
-                .MapPost("/{accountIndex}/cancel", CancelPlasmaAsync)
+                .MapPost("/{address}/cancel", CancelPlasmaAsync)
                 .WithName("CancelPlasma")
                 .Produces<JAccountBlockTemplate>(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
@@ -35,13 +35,13 @@ namespace ZenonWalletApi.Features.CancelPlasma
         public static async Task<JAccountBlockTemplate> CancelPlasmaAsync(
             IWalletService wallet,
             INodeService client,
-            [Validate] AccountIndex accountIndex,
+            [Validate] AddressString address,
             [FromBody][Validate] CancelPlasmaRequest request)
         {
             await client.ConnectAsync();
 
             // Access wallet account from index
-            var account = await wallet.GetAccountAsync(accountIndex.value);
+            var account = await wallet.GetAccountAsync(address.value);
 
             // Create block
             var block = client.Api.Embedded.Plasma.Cancel(request.IdHash);

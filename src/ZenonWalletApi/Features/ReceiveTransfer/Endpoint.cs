@@ -13,7 +13,7 @@ namespace ZenonWalletApi.Features.ReceiveTransfer
         public static IEndpointRouteBuilder MapReceiveTransferEndpoint(this IEndpointRouteBuilder endpoints)
         {
             endpoints
-                .MapPost("/{accountIndex}/receive", ReceiveTransferAsync)
+                .MapPost("/{address}/receive", ReceiveTransferAsync)
                 .WithName("ReceiveTransfer")
                 .Produces<JAccountBlockTemplate>(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
@@ -35,13 +35,13 @@ namespace ZenonWalletApi.Features.ReceiveTransfer
         public static async Task<JAccountBlockTemplate> ReceiveTransferAsync(
             IWalletService wallet,
             INodeService client,
-            [Validate] AccountIndex accountIndex,
+            [Validate] AddressString address,
             [FromBody][Validate] ReceiveTransferRequest request)
         {
             await client.ConnectAsync();
 
             // Access wallet account from index
-            var account = await wallet.GetAccountAsync(accountIndex.value);
+            var account = await wallet.GetAccountAsync(address.value);
 
             // Create receive block
             var block = AccountBlockTemplate.Receive(

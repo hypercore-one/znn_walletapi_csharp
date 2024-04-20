@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using ZenonWalletApi.Features.AddWalletAccounts;
 using ZenonWalletApi.Features.AuthenticateUser;
 using ZenonWalletApi.Features.CancelPlasma;
 using ZenonWalletApi.Features.FuseBotPlasma;
@@ -9,10 +10,10 @@ using ZenonWalletApi.Features.GetFusionInfo;
 using ZenonWalletApi.Features.GetPlasmaInfo;
 using ZenonWalletApi.Features.GetReceivedAccountBlocks;
 using ZenonWalletApi.Features.GetUnreceivedAccountBlocks;
-using ZenonWalletApi.Features.GetWalletAccountAddress;
 using ZenonWalletApi.Features.GetWalletStatus;
 using ZenonWalletApi.Features.InitializeWallet;
 using ZenonWalletApi.Features.LockWallet;
+using ZenonWalletApi.Features.MapGetWalletAccountsEndpoint;
 using ZenonWalletApi.Features.ReceiveTransfer;
 using ZenonWalletApi.Features.RestoreWallet;
 using ZenonWalletApi.Features.SendTransfer;
@@ -118,7 +119,8 @@ namespace ZenonWalletApi.Infrastructure.Configurations
 
             root.MapGroup("/wallet").WithTags("Wallet")
                 .MapGetWalletStatusEndpoint()
-                .MapGetWalletAccountAddressEndpoint()
+                .MapGetWalletAccountsEndpoint()
+                .MapAddWalletAccountsEndpoint()
                 .MapInitializeWalletEndpoint()
                 .MapRestoreWalletEndpoint()
                 .MapLockWalletEndpoint()

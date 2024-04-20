@@ -17,9 +17,9 @@ namespace ZenonWalletApi.Services
     {
         bool IsEnabled { get; }
 
-        Task SubscribeAsync(int accountIndex);
+        Task SubscribeAsync(Address address);
 
-        Task UnsubscribeAsync(int accountIndex);
+        Task UnsubscribeAsync(Address address);
     }
 
     internal class AutoReceiverService : BackgroundService, IAutoReceiverService, IDisposable
@@ -48,9 +48,9 @@ namespace ZenonWalletApi.Services
 
         public bool IsEnabled => Options.Enabled;
 
-        public async Task SubscribeAsync(int accountIndex)
+        public async Task SubscribeAsync(Address address)
         {
-            var address = await Wallet.GetAccountAddressAsync(accountIndex);
+            var accountIndex = await Wallet.GetAccountIndexAsync(address);
 
             Logger.LogInformation($"Subscribe to: {address}");
 
@@ -59,13 +59,14 @@ namespace ZenonWalletApi.Services
             await QueueUnreceivedTransactionsByAddressAsync(address);
         }
 
-        public async Task UnsubscribeAsync(int accountIndex)
+        public async Task UnsubscribeAsync(Address address)
         {
-            var address = await Wallet.GetAccountAddressAsync(accountIndex);
+            await Task.Run(() =>
+            {
+                Logger.LogInformation($"Unsubscribe from: {address}");
 
-            Logger.LogInformation($"Unsubscribe from: {address}");
-
-            AddressMap.Remove(address.ToString(), out _);
+                AddressMap.Remove(address.ToString(), out _);
+            });
         }
 
         private async Task ListenToAllAccountBlocksAsync()

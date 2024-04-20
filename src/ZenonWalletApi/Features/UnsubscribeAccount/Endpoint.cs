@@ -9,7 +9,7 @@ namespace ZenonWalletApi.Features.UnsubscribeAccount
         public static IEndpointRouteBuilder MapUnsubscribeAccountEndpoint(this IEndpointRouteBuilder endpoints)
         {
             endpoints
-                .MapDelete("/{accountIndex}", UnsubscribeAccountAsync)
+                .MapDelete("/{address}", UnsubscribeAccountAsync)
                 .WithName("UnsubscribeAccount")
                 .Produces(StatusCodes.Status200OK, typeof(string), contentType: "text/plain")
                 .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
@@ -30,9 +30,9 @@ namespace ZenonWalletApi.Features.UnsubscribeAccount
         /// </remarks>
         public static async Task<IResult> UnsubscribeAccountAsync(
             IAutoReceiverService autoReceiver,
-            [Validate] AccountIndex accountIndex)
+            [Validate] AddressString address)
         {
-            await autoReceiver.UnsubscribeAsync(accountIndex.value);
+            await autoReceiver.UnsubscribeAsync(address.value);
 
             return Results.Ok();
         }

@@ -14,7 +14,7 @@ namespace ZenonWalletApi.Features.FusePlasma
         public static IEndpointRouteBuilder MapFusePlasmaEndpoint(this IEndpointRouteBuilder endpoints)
         {
             endpoints
-                .MapPost("/{accountIndex}/fuse", FusePlasmaAsync)
+                .MapPost("/{address}/fuse", FusePlasmaAsync)
                 .WithName("FusePlasma")
                 .Produces<JAccountBlockTemplate>(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
@@ -37,13 +37,13 @@ namespace ZenonWalletApi.Features.FusePlasma
         public static async Task<JAccountBlockTemplate> FusePlasmaAsync(
             IWalletService wallet,
             INodeService client,
-            [Validate] AccountIndex accountIndex,
+            [Validate] AddressString address,
             [FromBody][Validate] FusePlasmaRequest request)
         {
             await client.ConnectAsync();
 
             // Access wallet account from index
-            var account = await wallet.GetAccountAsync(accountIndex.value);
+            var account = await wallet.GetAccountAsync(address.value);
 
             var amount = AmountUtils.ExtractDecimals(request.Amount, Constants.CoinDecimals);
 

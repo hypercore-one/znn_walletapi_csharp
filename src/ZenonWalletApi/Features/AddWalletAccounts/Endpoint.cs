@@ -1,18 +1,17 @@
 ﻿using ZenonWalletApi.Infrastructure.Filters;
 using ZenonWalletApi.Models;
-using ZenonWalletApi.Models.Parameters;
 using ZenonWalletApi.Services;
 
-namespace ZenonWalletApi.Features.GetWalletAccountAddress
+namespace ZenonWalletApi.Features.AddWalletAccounts
 {
     internal static class Endpoint
     {
-        public static IEndpointRouteBuilder MapGetWalletAccountAddressEndpoint(this IEndpointRouteBuilder endpoints)
+        public static IEndpointRouteBuilder MapAddWalletAccountsEndpoint(this IEndpointRouteBuilder endpoints)
         {
             endpoints
-                .MapPost("/{accountIndex}/address", GetWalletAccountAddressAsync)
-                .WithName("GetWalletAccountAddress")
-                .Produces<WalletAccountAddressResponse>()
+                .MapPost("/accounts", GetWalletAccountAddressAsync)
+                .WithName("AddWalletAccounts")
+                .Produces<WalletAccountAddressList>()
                 .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
                 .Produces(StatusCodes.Status403Forbidden, typeof(string), contentType: "text/plain")
                 .ProducesProblem(StatusCodes.Status409Conflict)
@@ -22,19 +21,17 @@ namespace ZenonWalletApi.Features.GetWalletAccountAddress
         }
 
         /// <summary>
-        /// Get a wallet account address by account index
+        /// Add wallet accounts
         /// </summary>
         /// <remarks>
         /// <para>Requires User authorization policy</para>
         /// <para>Requires Wallet to be initialized and unlocked</para>
         /// </remarks>
-        public static async Task<WalletAccountAddressResponse> GetWalletAccountAddressAsync(
+        public static async Task<WalletAccountAddressList> GetWalletAccountAddressAsync(
             IWalletService wallet,
-            [Validate] AccountIndex accountIndex)
+            [AsParameters][Validate] AddWalletAccountsRequest request)
         {
-            var address = await wallet.GetAccountAddressAsync(accountIndex.value);
-
-            return new WalletAccountAddressResponse(address);
+            return await wallet.AddAccountsAsync(request.numberOfAccounts);
         }
     }
 }

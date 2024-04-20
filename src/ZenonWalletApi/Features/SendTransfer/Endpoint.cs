@@ -18,7 +18,7 @@ namespace ZenonWalletApi.Features.SendTransfer
         public static IEndpointRouteBuilder MapSendTransferEndpoint(this IEndpointRouteBuilder endpoints)
         {
             endpoints
-                .MapPost("/{accountIndex}/send", SendTransferAsync)
+                .MapPost("/{address}/send", SendTransferAsync)
                 .WithName("SendTransfer")
                 .Produces<JAccountBlockTemplate>(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
@@ -40,16 +40,13 @@ namespace ZenonWalletApi.Features.SendTransfer
         public static async Task<JAccountBlockTemplate> SendTransferAsync(
             IWalletService wallet,
             INodeService client,
-            [Validate] AccountIndex accountIndex,
+            [Validate] AddressString address,
             [FromBody][Validate] SendTransferRequest request)
         {
             await client.ConnectAsync();
 
             // Access wallet account
-            var account = await wallet.GetAccountAsync(accountIndex.value);
-
-            // Get wallet account address
-            var address = await account.GetAddressAsync();
+            var account = await wallet.GetAccountAsync(address.value);
 
             BigInteger amount;
             if (request.TokenStandard == TokenStandard.ZnnZts ||
@@ -69,7 +66,7 @@ namespace ZenonWalletApi.Features.SendTransfer
 
             // Retrieve account info
             var accountInfo = await client.Api.Ledger
-                .GetAccountInfoByAddress(address);
+                .GetAccountInfoByAddress(address.value);
 
             // Find balance info
             var balanceInfo = accountInfo.BalanceInfoList
