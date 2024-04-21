@@ -15,6 +15,6 @@ namespace ZenonWalletApi.Models
     public class WalletAccountAddress
     {
         public required Address Address { get; set; }
-        public int AccountIndex { get; set; }
+        public int Index { get; set; }
     }
 }

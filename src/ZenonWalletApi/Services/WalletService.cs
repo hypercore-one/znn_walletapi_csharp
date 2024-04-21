@@ -205,16 +205,16 @@ namespace ZenonWalletApi.Services
 
             var result = Accounts!.FirstOrDefault(x => x.Address == address);
             if (result != null)
-                return await GetAccountAsync(result.AccountIndex);
+                return await GetAccountAsync(result.Index);
             throw new WalletException("Account does not exist");
         }
 
         public async Task<IWalletAccount> GetAccountAsync(int accountIndex)
         {
             var wallet = GetWallet();
-            var result = Accounts!.FirstOrDefault(x => x.AccountIndex == accountIndex);
+            var result = Accounts!.FirstOrDefault(x => x.Index == accountIndex);
             if (result != null)
-                return await wallet.GetAccountAsync(result.AccountIndex);
+                return await wallet.GetAccountAsync(result.Index);
             throw new WalletException("Account does not exist");
         }
 
@@ -227,7 +227,7 @@ namespace ZenonWalletApi.Services
 
                 var result = Accounts?.FirstOrDefault(x => x.Address == address);
                 if (result != null)
-                    return result.AccountIndex;
+                    return result.Index;
                 throw new WalletException("Account does not exist");
             });
         }
@@ -265,7 +265,7 @@ namespace ZenonWalletApi.Services
                     var account = await wallet.GetAccountAsync(++lastIndex);
                     var address = await account.GetAddressAsync();
 
-                    accountsToAdd.Add(new WalletAccountAddress() { Address = address, AccountIndex = lastIndex });
+                    accountsToAdd.Add(new WalletAccountAddress() { Address = address, Index = lastIndex });
                 }
 
                 WriteAccountCount(WalletDefinition!.WalletId, Accounts.Count + accountsToAdd.Count);
@@ -336,7 +336,7 @@ namespace ZenonWalletApi.Services
             for (int i = 0; i < numberOfAccounts; i++)
             {
                 var address = Wallet!.GetKeyPair(i).Address;
-                list.Add(new WalletAccountAddress() { Address = address, AccountIndex = i });
+                list.Add(new WalletAccountAddress() { Address = address, Index = i });
             }
 
             WriteAccountCount(WalletDefinition!.WalletId, list.Count());
