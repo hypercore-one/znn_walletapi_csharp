@@ -3,21 +3,21 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ZenonWalletApi.Models
 {
-    public record AuthenticateRequest
+    public record AuthenticateRequest(string Username, string Password)
     {
         /// <summary>
         /// The username of the user
         /// </summary>
         /// <example>user</example>
         [Required]
-        public required string Username { get; set; }
+        public string Username { get; } = Username;
 
         /// <summary>
         /// The password of the user
         /// </summary>
         /// <example>user</example>
         [Required]
-        public required string Password { get; set; }
+        public string Password { get; } = Password;
 
         public class Validator : AbstractValidator<AuthenticateRequest>
         {

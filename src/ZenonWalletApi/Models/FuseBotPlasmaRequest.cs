@@ -4,14 +4,14 @@ using Zenon.Model.Primitives;
 
 namespace ZenonWalletApi.Models
 {
-    public record FuseBotPlasmaRequest
+    public record FuseBotPlasmaRequest(Address Address)
     {
         /// <summary>
         /// The beneficiary address
         /// </summary>
         /// <example>z1qqjnwjjpnue8xmmpanz6csze6tcmtzzdtfsww7</example>
         [Required]
-        public required Address Address { get; set; }
+        public Address Address { get; } = Address;
 
         public class Validator : AbstractValidator<FuseBotPlasmaRequest>
         {

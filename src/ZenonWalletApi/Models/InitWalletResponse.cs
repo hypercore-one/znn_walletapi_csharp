@@ -2,7 +2,7 @@
 
 namespace ZenonWalletApi.Models
 {
-    public record class InitWalletResponse(string Mnemonic)
+    public record InitWalletResponse(string Mnemonic)
     {
         /// <summary>
         /// The mnemonic of the initialized wallet

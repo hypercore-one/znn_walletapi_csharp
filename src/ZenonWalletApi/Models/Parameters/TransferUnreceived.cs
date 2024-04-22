@@ -2,18 +2,18 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace ZenonWalletApi.Models
+namespace ZenonWalletApi.Models.Parameters
 {
-    public record TransferUnreceivedRequest(int pageIndex = 0, int pageSize = 50)
+    public record TransferUnreceived(int pageIndex = 0, int pageSize = 50)
     {
         [DefaultValue(0)]
-        public int pageIndex { get; set; } = pageIndex;
+        public int pageIndex { get; } = pageIndex;
 
-        [DefaultValue(50)]
         [Range(1, 50)]
-        public int pageSize { get; set; } = pageSize;
+        [DefaultValue(50)]
+        public int pageSize { get; } = pageSize;
 
-        public class Validator : AbstractValidator<TransferUnreceivedRequest>
+        public class Validator : AbstractValidator<TransferUnreceived>
         {
             public Validator()
             {

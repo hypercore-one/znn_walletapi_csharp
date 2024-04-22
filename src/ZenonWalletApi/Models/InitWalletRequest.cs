@@ -4,7 +4,7 @@ using ZenonWalletApi.Models.Validators;
 
 namespace ZenonWalletApi.Models
 {
-    public record InitWalletRequest
+    public class InitWalletRequest(string Password)
     {
         /// <summary>
         /// The passsword of the wallet
@@ -12,7 +12,7 @@ namespace ZenonWalletApi.Models
         /// <example>Secret99$</example>
         [Required]
         [MinLength(8), MaxLength(255)]
-        public required string Password { get; set; }
+        public string Password { get; } = Password;
 
         public class Validator : AbstractValidator<InitWalletRequest>
         {

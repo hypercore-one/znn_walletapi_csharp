@@ -4,7 +4,7 @@ using ZenonWalletApi.Models.Validators;
 
 namespace ZenonWalletApi.Models
 {
-    public record RestoreWalletRequest
+    public record RestoreWalletRequest(string Password, string Mnemonic)
     {
         /// <summary>
         /// The password of the wallet
@@ -12,14 +12,14 @@ namespace ZenonWalletApi.Models
         /// <example>Secret99$</example>
         [Required]
         [MinLength(8), MaxLength(255)]
-        public required string Password { get; set; }
+        public string Password { get; } = Password;
 
         /// <summary>
         /// The mnemonic of the wallet
         /// </summary>
         /// <example>route become dream access impulse price inform obtain engage ski believe awful absent pig thing vibrant possible exotic flee pepper marble rural fire fancy</example>
         [Required]
-        public required string Mnemonic { get; set; }
+        public string Mnemonic { get; } = Mnemonic;
 
         public class Validator : AbstractValidator<RestoreWalletRequest>
         {

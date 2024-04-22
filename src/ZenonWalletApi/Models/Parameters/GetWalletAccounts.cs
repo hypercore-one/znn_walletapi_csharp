@@ -3,18 +3,18 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using Zenon;
 
-namespace ZenonWalletApi.Models
+namespace ZenonWalletApi.Models.Parameters
 {
-    public record TransferReceivedRequest(int pageIndex = 0, int pageSize = Constants.RpcMaxPageSize)
+    public record GetWalletAccounts(int pageIndex = 0, int pageSize = Constants.RpcMaxPageSize)
     {
         [DefaultValue(0)]
-        public int pageIndex { get; set; } = pageIndex;
+        public int pageIndex { get; } = pageIndex;
 
-        [DefaultValue(Constants.RpcMaxPageSize)]
         [Range(1, Constants.RpcMaxPageSize)]
-        public int pageSize { get; set; } = pageSize;
+        [DefaultValue(Constants.RpcMaxPageSize)]
+        public int pageSize { get; } = pageSize;
 
-        public class Validator : AbstractValidator<TransferReceivedRequest>
+        public class Validator : AbstractValidator<GetWalletAccounts>
         {
             public Validator()
             {

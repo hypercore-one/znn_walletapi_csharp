@@ -29,6 +29,8 @@ namespace ZenonWalletApi.Features.SubscribeAccount
         /// <para>Requires User authorization policy</para>
         /// <para>Requires Wallet to be initialized and unlocked</para>
         /// </remarks>
+        /// <param name="autoReceiver"></param>
+        /// <param name="account" example="z1qqjnwjjpnue8xmmpanz6csze6tcmtzzdtfsww7 or 0">The account address or index to subscribe</param>
         public static async Task<IResult> SubscribeAccountAsync(
             IAutoReceiverService autoReceiver,
             [Validate] AccountString account)

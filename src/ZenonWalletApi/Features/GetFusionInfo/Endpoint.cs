@@ -1,6 +1,5 @@
 ﻿using Zenon.Model.Embedded.Json;
 using ZenonWalletApi.Infrastructure.Filters;
-using ZenonWalletApi.Models;
 using ZenonWalletApi.Models.Parameters;
 using ZenonWalletApi.Services;
 
@@ -32,7 +31,7 @@ namespace ZenonWalletApi.Features.GetFusionInfo
             IWalletService wallet,
             INodeService client,
             [Validate] AddressString address,
-            [AsParameters][Validate] PlasmaFusedRequest request)
+            [AsParameters][Validate] PlasmaFused request)
         {
             await client.ConnectAsync();
 

@@ -3,14 +3,14 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ZenonWalletApi.Models
 {
-    public record UnlockWalletRequest
+    public record UnlockWalletRequest(string Password)
     {
         /// <summary>
         /// The password of the wallet
         /// </summary>
         /// <example>Secret99$</example>
         [Required]
-        public required string Password { get; set; }
+        public string Password { get; } = Password;
 
         public class Validator : AbstractValidator<UnlockWalletRequest>
         {

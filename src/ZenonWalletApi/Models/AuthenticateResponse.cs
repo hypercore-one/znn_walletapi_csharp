@@ -2,7 +2,7 @@
 
 namespace ZenonWalletApi.Models
 {
-    public record class AuthenticateResponse(Guid Id, string Username, string Token)
+    public record AuthenticateResponse(Guid Id, string Username, string Token)
     {
         /// <summary>
         /// The unique id of the user

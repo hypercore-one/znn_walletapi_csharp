@@ -1,6 +1,6 @@
 ﻿namespace ZenonWalletApi.Models
 {
-    public record class WalletStatusResponse(bool IsInitialized, bool IsUnlocked)
+    public record WalletStatusResponse(bool IsInitialized, bool IsUnlocked)
     {
         /// <summary>
         /// Indicates whether the wallet is initialized

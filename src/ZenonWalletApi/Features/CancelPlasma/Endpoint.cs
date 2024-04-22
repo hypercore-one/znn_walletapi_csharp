@@ -34,6 +34,10 @@ namespace ZenonWalletApi.Features.CancelPlasma
         /// <para>Requires User authorization policy</para>
         /// <para>Requires Wallet to be initialized and unlocked</para>
         /// </remarks>
+        /// <param name="wallet"></param>
+        /// <param name="client"></param>
+        /// <param name="account" example="z1qqjnwjjpnue8xmmpanz6csze6tcmtzzdtfsww7 or 0">The account address or index to cancel from</param>
+        /// <param name="request"></param>
         public static async Task<JAccountBlockTemplate> CancelPlasmaAsync(
             IWalletService wallet,
             INodeService client,

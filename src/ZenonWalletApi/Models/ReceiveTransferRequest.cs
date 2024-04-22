@@ -4,14 +4,14 @@ using Zenon.Model.Primitives;
 
 namespace ZenonWalletApi.Models
 {
-    public record ReceiveTransferRequest
+    public record ReceiveTransferRequest(Hash BlockHash)
     {
         /// <summary>
         /// The hash of the account block to receive
         /// </summary>
         /// <example>126e53dd8a5514d67e0203e580c0d9950c9b0255618d53e87e42bdbd18246e9f</example>
         [Required]
-        public required Hash BlockHash { get; set; }
+        public Hash BlockHash { get; } = BlockHash;
 
         public class Validator : AbstractValidator<ReceiveTransferRequest>
         {

@@ -5,21 +5,21 @@ using ZenonWalletApi.Models.Validators;
 
 namespace ZenonWalletApi.Models
 {
-    public record FusePlasmaRequest
+    public record FusePlasmaRequest(Address Address, string Amount)
     {
         /// <summary>
         /// The beneficiary address
         /// </summary>
         /// <example>z1qqjnwjjpnue8xmmpanz6csze6tcmtzzdtfsww7</example>
         [Required]
-        public required Address Address { get; set; }
+        public Address Address { get; } = Address;
 
         /// <summary>
         /// The amount of QSR to fuse
         /// </summary>
         /// <example>100</example>
         [Required]
-        public required string Amount { get; set; }
+        public string Amount { get; } = Amount;
 
         public class Validator : AbstractValidator<FusePlasmaRequest>
         {

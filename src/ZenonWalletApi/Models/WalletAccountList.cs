@@ -3,27 +3,18 @@ using Zenon.Model.Primitives;
 
 namespace ZenonWalletApi.Models
 {
-    public record class WalletAccountList(WalletAccount[] List, int Count)
+    public record WalletAccountList(WalletAccount[] List, int Count)
     {
+        /// <summary>
+        /// Gets a list of wallet accounts
+        /// </summary>
         [Required]
-        public WalletAccount[] List { get; set; } = List;
+        public WalletAccount[] List { get; } = List;
 
+        /// <summary>
+        /// Gets the total number of accounts
+        /// </summary>
         [Required]
-        public int Count { get; set; } = Count;
-    }
-
-    public class WalletAccount
-    {
-        public WalletAccount(Address address, int index)
-        {
-            Address = address;
-            Index = index;
-        }
-
-        [Required]
-        public Address Address { get; }
-
-        [Required]
-        public int Index { get; }
+        public int Count { get; } = Count;
     }
 }

@@ -1,5 +1,6 @@
 ﻿using ZenonWalletApi.Infrastructure.Filters;
 using ZenonWalletApi.Models;
+using ZenonWalletApi.Models.Parameters;
 using ZenonWalletApi.Services;
 
 namespace ZenonWalletApi.Features.MapGetWalletAccountsEndpoint
@@ -28,7 +29,7 @@ namespace ZenonWalletApi.Features.MapGetWalletAccountsEndpoint
         /// </remarks>
         public static async Task<WalletAccountList> GetWalletAccountsAsync(
             IWalletService wallet,
-            [AsParameters][Validate] GetWalletAccountsRequest request)
+            [AsParameters][Validate] GetWalletAccounts request)
         {
             return await wallet.GetAccountsAsync(request.pageIndex, request.pageSize);
         }

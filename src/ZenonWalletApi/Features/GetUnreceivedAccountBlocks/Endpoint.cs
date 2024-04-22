@@ -1,6 +1,5 @@
 ﻿using Zenon.Model.NoM.Json;
 using ZenonWalletApi.Infrastructure.Filters;
-using ZenonWalletApi.Models;
 using ZenonWalletApi.Models.Parameters;
 using ZenonWalletApi.Services;
 
@@ -31,7 +30,7 @@ namespace ZenonWalletApi.Features.GetUnreceivedAccountBlocks
         public static async Task<JAccountBlockList> GetUnreceivedAccountBlocksAsync(
             INodeService client,
             [Validate] AddressString address,
-            [AsParameters][Validate] TransferUnreceivedRequest request)
+            [AsParameters][Validate] TransferUnreceived request)
         {
             await client.ConnectAsync();
 

@@ -1,6 +1,6 @@
 ﻿namespace ZenonWalletApi.Models
 {
-    public record class ValidateAddressResponse(bool IsValid, bool IsEmbedded)
+    public record ValidateAddressResponse(bool IsValid, bool IsEmbedded)
     {
         /// <summary>
         /// Indicates whether the address is valid
