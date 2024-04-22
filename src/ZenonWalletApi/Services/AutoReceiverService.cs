@@ -17,9 +17,13 @@ namespace ZenonWalletApi.Services
     {
         bool IsEnabled { get; }
 
-        Task SubscribeAsync(Address address);
+        Task SubscribeAsync(Address accountAddress);
 
-        Task UnsubscribeAsync(Address address);
+        Task SubscribeAsync(int accountIndex);
+
+        Task UnsubscribeAsync(Address accountAddress);
+
+        Task UnsubscribeAsync(int accountIndex);
     }
 
     internal class AutoReceiverService : BackgroundService, IAutoReceiverService, IDisposable
@@ -48,24 +52,56 @@ namespace ZenonWalletApi.Services
 
         public bool IsEnabled => Options.Enabled;
 
-        public async Task SubscribeAsync(Address address)
+        public async Task SubscribeAsync(Address accountAddress)
         {
-            var accountIndex = await Wallet.GetAccountIndexAsync(address);
+            var accountIndex = await Wallet.GetAccountIndexAsync(accountAddress);
 
-            Logger.LogInformation($"Subscribe to: {address}");
+            Logger.LogInformation($"Subscribe to: {accountAddress}");
 
-            AddressMap.TryAdd(address.ToString(), accountIndex);
+            AddressMap.TryAdd(accountAddress.ToString(), accountIndex);
 
-            await QueueUnreceivedTransactionsByAddressAsync(address);
+            await QueueUnreceivedTransactionsByAddressAsync(accountAddress);
+        }
+
+        public async Task SubscribeAsync(int accountIndex)
+        {
+            var account = await Wallet.GetAccountAsync(accountIndex);
+            var accountAddress = await account.GetAddressAsync();
+
+            Logger.LogInformation($"Subscribe to: {accountAddress}");
+
+            AddressMap.TryAdd(accountAddress.ToString(), accountIndex);
+
+            await QueueUnreceivedTransactionsByAddressAsync(accountAddress);
         }
 
         public async Task UnsubscribeAsync(Address address)
         {
             await Task.Run(() =>
             {
-                Logger.LogInformation($"Unsubscribe from: {address}");
+                if (AddressMap.Remove(address.ToString(), out _))
+                {
+                    Logger.LogInformation($"Unsubscribe from: {address}");
+                }
+            });
+        }
 
-                AddressMap.Remove(address.ToString(), out _);
+        public async Task UnsubscribeAsync(int accountIndex)
+        {
+            await Task.Run(() =>
+            {
+                var address = AddressMap
+                    .Where(x => x.Value == accountIndex)
+                    .Select(x => x.Key)
+                    .FirstOrDefault();
+
+                if (address != null)
+                {
+                    if (AddressMap.Remove(address.ToString(), out _))
+                    {
+                        Logger.LogInformation($"Unsubscribe from: {address}");
+                    }
+                }
             });
         }
 

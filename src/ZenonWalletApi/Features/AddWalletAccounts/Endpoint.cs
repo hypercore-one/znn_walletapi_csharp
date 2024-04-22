@@ -11,7 +11,7 @@ namespace ZenonWalletApi.Features.AddWalletAccounts
             endpoints
                 .MapPost("/accounts", GetWalletAccountAddressAsync)
                 .WithName("AddWalletAccounts")
-                .Produces<WalletAccountAddressList>()
+                .Produces<WalletAccountList>()
                 .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
                 .Produces(StatusCodes.Status403Forbidden, typeof(string), contentType: "text/plain")
                 .ProducesProblem(StatusCodes.Status409Conflict)
@@ -27,7 +27,7 @@ namespace ZenonWalletApi.Features.AddWalletAccounts
         /// <para>Requires User authorization policy</para>
         /// <para>Requires Wallet to be initialized and unlocked</para>
         /// </remarks>
-        public static async Task<WalletAccountAddressList> GetWalletAccountAddressAsync(
+        public static async Task<WalletAccountList> GetWalletAccountAddressAsync(
             IWalletService wallet,
             [AsParameters][Validate] AddWalletAccountsRequest request)
         {

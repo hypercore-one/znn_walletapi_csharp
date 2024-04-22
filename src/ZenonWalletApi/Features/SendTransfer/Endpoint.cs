@@ -5,6 +5,7 @@ using Zenon.Model.NoM;
 using Zenon.Model.NoM.Json;
 using Zenon.Model.Primitives;
 using Zenon.Utils;
+using Zenon.Wallet;
 using ZenonWalletApi.Infrastructure.Filters;
 using ZenonWalletApi.Models;
 using ZenonWalletApi.Models.Exceptions;
@@ -18,7 +19,7 @@ namespace ZenonWalletApi.Features.SendTransfer
         public static IEndpointRouteBuilder MapSendTransferEndpoint(this IEndpointRouteBuilder endpoints)
         {
             endpoints
-                .MapPost("/{address}/send", SendTransferAsync)
+                .MapPost("/{account}/send", SendTransferAsync)
                 .WithName("SendTransfer")
                 .Produces<JAccountBlockTemplate>(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
@@ -40,13 +41,25 @@ namespace ZenonWalletApi.Features.SendTransfer
         public static async Task<JAccountBlockTemplate> SendTransferAsync(
             IWalletService wallet,
             INodeService client,
-            [Validate] AddressString address,
+            [Validate] AccountString account,
             [FromBody][Validate] SendTransferRequest request)
         {
             await client.ConnectAsync();
 
+            IWalletAccount walletAccount;
+            Address address;
+
             // Access wallet account
-            var account = await wallet.GetAccountAsync(address.value);
+            if (account.Address != null)
+            {
+                walletAccount = await wallet.GetAccountAsync(account.Address!);
+                address = await walletAccount.GetAddressAsync();
+            }
+            else
+            {
+                walletAccount = await wallet.GetAccountAsync(account.Index!.Value);
+                address = await walletAccount.GetAddressAsync();
+            }
 
             BigInteger amount;
             if (request.TokenStandard == TokenStandard.ZnnZts ||
@@ -66,7 +79,7 @@ namespace ZenonWalletApi.Features.SendTransfer
 
             // Retrieve account info
             var accountInfo = await client.Api.Ledger
-                .GetAccountInfoByAddress(address.value);
+                .GetAccountInfoByAddress(address);
 
             // Find balance info
             var balanceInfo = accountInfo.BalanceInfoList
@@ -95,7 +108,7 @@ namespace ZenonWalletApi.Features.SendTransfer
                 request.Address, request.TokenStandard, amount);
 
             // Send block
-            var response = await client.SendAsync(block, account);
+            var response = await client.SendAsync(block, walletAccount);
 
             // Return block hash
             return response.ToJson();

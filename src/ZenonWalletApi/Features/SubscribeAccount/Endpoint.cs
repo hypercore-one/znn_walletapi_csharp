@@ -9,7 +9,7 @@ namespace ZenonWalletApi.Features.SubscribeAccount
         public static IEndpointRouteBuilder MapSubscribeAccountEndpoint(this IEndpointRouteBuilder endpoints)
         {
             endpoints
-                .MapPut("/{address}", SubscribeAccountAsync)
+                .MapPut("/{account}", SubscribeAccountAsync)
                 .WithName("SubscribeAccount")
                 .Produces(StatusCodes.Status200OK, typeof(string), contentType: "text/plain")
                 .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
@@ -31,9 +31,18 @@ namespace ZenonWalletApi.Features.SubscribeAccount
         /// </remarks>
         public static async Task<IResult> SubscribeAccountAsync(
             IAutoReceiverService autoReceiver,
-            [Validate] AddressString address)
+            [Validate] AccountString account)
         {
-            await autoReceiver.SubscribeAsync(address.value);
+            if (account.Address != null)
+            {
+                // Access wallet account from address
+                await autoReceiver.SubscribeAsync(account.Address!);
+            }
+            else
+            {
+                // Access wallet account from index
+                await autoReceiver.SubscribeAsync(account.Index!.Value);
+            }
 
             return Results.Ok();
         }

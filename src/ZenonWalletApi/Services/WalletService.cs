@@ -28,9 +28,9 @@ namespace ZenonWalletApi.Services
 
         Task<int> GetAccountIndexAsync(Address accountIndex);
 
-        Task<WalletAccountAddressList> AddAccountsAsync(int numberOfAccounts);
+        Task<WalletAccountList> AddAccountsAsync(int numberOfAccounts);
 
-        Task<WalletAccountAddressList> GetAccountsAsync(int pageIndex, int pageSize);
+        Task<WalletAccountList> GetAccountsAsync(int pageIndex, int pageSize);
     }
 
     internal class WalletService : BackgroundService, IWalletService, IDisposable
@@ -59,7 +59,7 @@ namespace ZenonWalletApi.Services
 
         private KeyStore? Wallet { get; set; }
 
-        private List<WalletAccountAddress>? Accounts { get; set; }
+        private List<WalletAccount>? Accounts { get; set; }
 
         private int NumFailedUnlockAttempts { get; set; }
 
@@ -232,7 +232,7 @@ namespace ZenonWalletApi.Services
             });
         }
 
-        public async Task<WalletAccountAddressList> GetAccountsAsync(int pageIndex, int pageSize)
+        public async Task<WalletAccountList> GetAccountsAsync(int pageIndex, int pageSize)
         {
             return await Task.Run(() =>
             {
@@ -241,16 +241,16 @@ namespace ZenonWalletApi.Services
 
                 var pagedItems = Accounts!.Skip(pageIndex * pageSize).Take(pageSize);
 
-                return new WalletAccountAddressList(pagedItems.ToArray(), Accounts!.Count);
+                return new WalletAccountList(pagedItems.ToArray(), Accounts!.Count);
             });
         }
 
-        public async Task<WalletAccountAddressList> AddAccountsAsync(int numberOfAccounts)
+        public async Task<WalletAccountList> AddAccountsAsync(int numberOfAccounts)
         {
             if (numberOfAccounts < 1)
                 throw new ArgumentOutOfRangeException(nameof(numberOfAccounts), numberOfAccounts, "must be bigger than 0");
 
-            var accountsToAdd = new List<WalletAccountAddress>();
+            var accountsToAdd = new List<WalletAccount>();
 
             await _lock.WaitAsync();
             try
@@ -265,7 +265,7 @@ namespace ZenonWalletApi.Services
                     var account = await wallet.GetAccountAsync(++lastIndex);
                     var address = await account.GetAddressAsync();
 
-                    accountsToAdd.Add(new WalletAccountAddress() { Address = address, Index = lastIndex });
+                    accountsToAdd.Add(new WalletAccount(address, lastIndex));
                 }
 
                 WriteAccountCount(WalletDefinition!.WalletId, Accounts.Count + accountsToAdd.Count);
@@ -277,7 +277,7 @@ namespace ZenonWalletApi.Services
                 _lock.Release();
             }
 
-            return new WalletAccountAddressList(accountsToAdd.ToArray(), Accounts.Count);
+            return new WalletAccountList(accountsToAdd.ToArray(), Accounts.Count);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -331,12 +331,12 @@ namespace ZenonWalletApi.Services
 
         private void InitAccounts(int numberOfAccounts)
         {
-            var list = new List<WalletAccountAddress>();
+            var list = new List<WalletAccount>();
 
             for (int i = 0; i < numberOfAccounts; i++)
             {
                 var address = Wallet!.GetKeyPair(i).Address;
-                list.Add(new WalletAccountAddress() { Address = address, Index = i });
+                list.Add(new WalletAccount(address, i));
             }
 
             WriteAccountCount(WalletDefinition!.WalletId, list.Count());

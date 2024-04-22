@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Zenon.Model.NoM.Json;
+using Zenon.Model.Primitives;
+using Zenon.Wallet;
 using ZenonWalletApi.Infrastructure.Filters;
 using ZenonWalletApi.Models;
 using ZenonWalletApi.Models.Parameters;
@@ -12,7 +14,7 @@ namespace ZenonWalletApi.Features.CancelPlasma
         public static IEndpointRouteBuilder MapCancelPlasmaEndpoint(this IEndpointRouteBuilder endpoints)
         {
             endpoints
-                .MapPost("/{address}/cancel", CancelPlasmaAsync)
+                .MapPost("/{account}/cancel", CancelPlasmaAsync)
                 .WithName("CancelPlasma")
                 .Produces<JAccountBlockTemplate>(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
@@ -35,19 +37,30 @@ namespace ZenonWalletApi.Features.CancelPlasma
         public static async Task<JAccountBlockTemplate> CancelPlasmaAsync(
             IWalletService wallet,
             INodeService client,
-            [Validate] AddressString address,
+            [Validate] AccountString account,
             [FromBody][Validate] CancelPlasmaRequest request)
         {
             await client.ConnectAsync();
 
-            // Access wallet account from index
-            var account = await wallet.GetAccountAsync(address.value);
+            // Access wallet account
+            IWalletAccount walletAccount;
+
+            if (account.Address != null)
+            {
+                // Access wallet account from address
+                walletAccount = await wallet.GetAccountAsync(account.Address!);
+            }
+            else
+            {
+                // Access wallet account from index
+                walletAccount = await wallet.GetAccountAsync(account.Index!.Value);
+            }
 
             // Create block
             var block = client.Api.Embedded.Plasma.Cancel(request.IdHash);
 
             // Send block
-            var response = await client.SendAsync(block, account);
+            var response = await client.SendAsync(block, walletAccount);
 
             return response.ToJson();
         }

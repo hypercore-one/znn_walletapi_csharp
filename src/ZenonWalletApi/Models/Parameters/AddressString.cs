@@ -15,12 +15,12 @@ namespace ZenonWalletApi.Models.Parameters
         {
             try
             {
-                result = new AddressString(Address.Parse(s));
+                result = Parse(s!, provider);
                 return true;
             }
             catch
             {
-                result = new AddressString(Address.EmptyAddress);
+                result = null;
                 return false;
             }
         }
