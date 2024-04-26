@@ -3,8 +3,8 @@
 	<PropertyGroup>
 		<Authors>CryptoFish</Authors>
 		<Copyright>2024</Copyright>
-		<Description>Wallet API for Zenon Network</Description>
-		<PackageTags>zenon, nom, znn, qsr, zts, sdk, api, dotnet, csharp</PackageTags>
+		<Description>Zenon Wallet API for .NET</Description>
+		<PackageTags>zenon;nom;znn;qsr;zts;sdk;api;dotnet;csharp;minimal api;asp.net core</PackageTags>
 		<IncludeSymbols>true</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<EnableTrimAnalyzer>true</EnableTrimAnalyzer>
