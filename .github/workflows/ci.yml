@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches-ignore:
+      - main
+    tags:
+      - '*'
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  
+jobs:
+  ci:
+    name: ci-${{matrix.os}}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+    - name: Restore dependencies
+      run: dotnet restore
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
+    - name: Test
+      run: dotnet test --no-restore --verbosity normal
