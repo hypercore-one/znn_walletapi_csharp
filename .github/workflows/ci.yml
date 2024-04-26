@@ -25,6 +25,10 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: ${{ env.DOTNET_VERSION }}
+    - name: Install Nerdbank Git versioning
+      run: dotnet tool install -g nbgv
+    - name: Setup Nerdbank Git versioning
+      run: nbgv install
     - name: Restore dependencies
       run: dotnet restore
       working-directory: ${{ env.WORK_DIR }}
