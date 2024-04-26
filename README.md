@@ -1,3 +1,5 @@
+[![build](https://img.shields.io/github/actions/workflow/status/hypercore-one/znn_walletapi_csharp/ci.yml)](https://github.com/hypercore-one/znn_walletapi_csharp/actions/workflows/ci.yml)
+
 # Zenon Wallet API for .NET
 
 A .NET based cross-platform Wallet API for interacting with Zenon Alphanet - Network of Momentum Phase 1
@@ -16,7 +18,7 @@ The Wallet API provides access to Zenon Node functionalities, including blockcha
 
 ## Documentation
 
-To explore the endpoints without setting up your own Wallet API, you can visit the [online Wallet API](https://walletapi.hypercore.one). You can call the endpoints via the web interface in your browser by clicking Try it out.
+To explore the endpoints without setting up your own Wallet API, you can visit the [online Wallet API](https://znnwalletapi.apidog.io). You can call the endpoints via the web interface in your browser by clicking Try it out.
 
 > Note: to access protected API routes, an user account is required. Please contact us if you want to try it out.
 
