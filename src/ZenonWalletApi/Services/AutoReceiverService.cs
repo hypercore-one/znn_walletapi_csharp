@@ -264,31 +264,14 @@ namespace ZenonWalletApi.Services
             return accountArray;
         }
 
-        private async Task AddAccountAsync(WalletAccount account)
-        {
-            await accountLock.WaitAsync();
-
-            try
-            {
-                Logger.LogDebug($"Add account: {account}");
-
-                accountList.Add(account);
-                accountArray = accountList.ToArray();
-            }
-            finally
-            {
-                accountLock.Release();
-            }
-        }
-
         private async Task ClearQueuesAndAccountsAsync()
         {
-            Logger.LogDebug("Clear queues and accounts");
-
             await accountLock.WaitAsync();
 
             try
             {
+                Logger.LogDebug("Clear queues and accounts");
+
                 blockQueue.Clear();
                 accountQueue.Clear();
                 
@@ -310,18 +293,30 @@ namespace ZenonWalletApi.Services
 
         private async Task ProcessAccountQueueAsync(CancellationToken cancellationToken)
         {
-            var accountsToAdd = new List<WalletAccount>();
-
-            while (!cancellationToken.IsCancellationRequested && 
-                accountQueue.TryPeek(out var account))
+            while (!cancellationToken.IsCancellationRequested)
             {
-                if (!HasAccount(account.Address))
-                {
-                    await QueueUnreceivedBlocksByAddressAsync(account.Address);
+                await accountLock.WaitAsync();
 
-                    await AddAccountAsync(account);
-                    
+                try
+                {
+                    if (!accountQueue.TryPeek(out var account))
+                        break;
+
+                    if (!HasAccount(account.Address))
+                    {
+                        await QueueUnreceivedBlocksByAddressAsync(account.Address);
+
+                        Logger.LogDebug($"Add account: {account}");
+
+                        accountList.Add(account);
+                        accountArray = accountList.ToArray();
+                    }
+
                     accountQueue.TryDequeue(out _);
+                }
+                finally
+                {
+                    accountLock.Release();
                 }
             }
         }
