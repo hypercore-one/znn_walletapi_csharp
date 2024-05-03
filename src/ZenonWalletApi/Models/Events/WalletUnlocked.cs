@@ -4,6 +4,6 @@ namespace ZenonWalletApi.Models.Events
 {
     public sealed class WalletUnlocked : IEvent
     {
-        public required WalletAccount[] Accounts { get; set; }
+        public WalletAccount[]? Accounts { get; set; }
     }
 }

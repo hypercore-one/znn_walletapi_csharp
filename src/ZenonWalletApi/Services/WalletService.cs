@@ -205,7 +205,7 @@ namespace ZenonWalletApi.Services
             }
 
             // Raise events
-            await EventAggregator.PublishAsync(new WalletUnlocked() { Accounts = init ? _accountsArray : new WalletAccount[0] });
+            await EventAggregator.PublishAsync(new WalletUnlocked() { Accounts = init ? _accountsArray : null });
         }
 
         public async Task LockAsync()

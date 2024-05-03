@@ -326,7 +326,7 @@ namespace ZenonWalletApi.Services
 
         public async Task HandleAsync(WalletInitialized? @event, CancellationToken cancellationToken)
         {
-            if (@event?.Accounts != null)
+            if (@event?.Accounts != null && @event.Accounts.Length != 0)
             {
                 await ClearQueuesAndAccountsAsync();
 
@@ -342,7 +342,7 @@ namespace ZenonWalletApi.Services
 
         public async Task HandleAsync(WalletUnlocked? @event, CancellationToken cancellationToken)
         {
-            if (@event?.Accounts != null)
+            if (@event?.Accounts != null && @event.Accounts.Length != 0)
             {
                 await ClearQueuesAndAccountsAsync();
 
