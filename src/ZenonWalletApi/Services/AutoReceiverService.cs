@@ -254,11 +254,6 @@ namespace ZenonWalletApi.Services
             return accountArray.FirstOrDefault(x => x.Address == address) != null;
         }
 
-        private WalletAccount? GetAccount(Address address)
-        {
-            return accountArray.FirstOrDefault(x => x.Address == address);
-        }
-
         private WalletAccount[] GetAccounts()
         {
             return accountArray;
