@@ -260,6 +260,23 @@ namespace ZenonWalletApi.Services
             return accountArray;
         }
 
+        private async Task AddAccountAsync(WalletAccount account)
+        {
+            await accountLock.WaitAsync();
+
+            try
+            {
+                Logger.LogDebug($"Add account: {account}");
+
+                accountList.Add(account);
+                accountArray = accountList.ToArray();
+            }
+            finally
+            {
+                accountLock.Release();
+            }
+        }
+
         private async Task ClearQueuesAndAccountsAsync()
         {
             Logger.LogDebug("Clear queues and accounts");
@@ -291,38 +308,16 @@ namespace ZenonWalletApi.Services
         {
             var accountsToAdd = new List<WalletAccount>();
 
-            try
+            while (!cancellationToken.IsCancellationRequested && 
+                accountQueue.TryPeek(out var account))
             {
-                while (!cancellationToken.IsCancellationRequested && 
-                    accountQueue.TryPeek(out var account))
+                if (!HasAccount(account.Address))
                 {
-                    if (!HasAccount(account.Address))
-                    {
-                        await QueueUnreceivedBlocksByAddressAsync(account.Address);
+                    await QueueUnreceivedBlocksByAddressAsync(account.Address);
 
-                        Logger.LogDebug($"Add account: {account}");
-
-                        accountsToAdd.Add(account);
-                    }
-
+                    await AddAccountAsync(account);
+                    
                     accountQueue.TryDequeue(out _);
-                }
-            }
-            finally
-            {
-                if (accountsToAdd.Count > 0)
-                {
-                    await accountLock.WaitAsync();
-
-                    try
-                    {
-                        accountList.AddRange(accountsToAdd);
-                        accountArray = accountList.ToArray();
-                    }
-                    finally
-                    {
-                        accountLock.Release();
-                    }
                 }
             }
         }
