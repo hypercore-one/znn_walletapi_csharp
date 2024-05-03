@@ -58,21 +58,21 @@ namespace ZenonWalletApi.Services
 
         public bool IsEnabled => Options.Enabled;
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
             var init = true;
 
-            while (!stoppingToken.IsCancellationRequested)
+            while (!cancellationToken.IsCancellationRequested)
             {
                 try
                 {
-                    if (await Timer.WaitForNextTickAsync(stoppingToken) && IsEnabled)
+                    if (await Timer.WaitForNextTickAsync(cancellationToken) && IsEnabled)
                     {
                         if (Node.IsClosed)
                         {
                             Logger.LogDebug("Connect node");
 
-                            init = await Node.ConnectAsync(stoppingToken);
+                            init = await Node.ConnectAsync(cancellationToken);
                         }
                         else
                         {
@@ -96,14 +96,14 @@ namespace ZenonWalletApi.Services
                                 {
                                     Logger.LogDebug("Process account queue");
 
-                                    await ProcessAccountQueueAsync();
+                                    await ProcessAccountQueueAsync(cancellationToken);
                                 }
 
                                 if (!blockQueue.IsEmpty && Wallet.IsUnlocked)
                                 {
                                     Logger.LogDebug("Process block queue");
 
-                                    await ProcessBlockQueueAsync();
+                                    await ProcessBlockQueueAsync(cancellationToken);
                                 }
                             }
                         }
@@ -215,9 +215,10 @@ namespace ZenonWalletApi.Services
             }
         }
 
-        private async Task ProcessBlockQueueAsync()
+        private async Task ProcessBlockQueueAsync(CancellationToken cancellationToken)
         {
-            while (blockQueue.TryPeek(out var blockHash))
+            while (!cancellationToken.IsCancellationRequested && 
+                blockQueue.TryPeek(out var blockHash))
             {
                 try
                 {
@@ -281,21 +282,19 @@ namespace ZenonWalletApi.Services
 
         private void QueueAccount(WalletAccount account)
         {
-            if (!accountQueue.Contains(account))
-            {
-                Logger.LogDebug($"Queue account: {account}");
+            Logger.LogDebug($"Queue account: {account}");
 
-                accountQueue.Enqueue(account);
-            }
+            accountQueue.Enqueue(account);
         }
 
-        private async Task ProcessAccountQueueAsync()
+        private async Task ProcessAccountQueueAsync(CancellationToken cancellationToken)
         {
             var accountsToAdd = new List<WalletAccount>();
 
             try
             {
-                while (accountQueue.TryPeek(out var account))
+                while (!cancellationToken.IsCancellationRequested && 
+                    accountQueue.TryPeek(out var account))
                 {
                     if (!HasAccount(account.Address))
                     {
@@ -332,43 +331,48 @@ namespace ZenonWalletApi.Services
 
         public async Task HandleAsync(WalletInitialized? @event, CancellationToken cancellationToken)
         {
-            if (@event != null)
+            if (@event?.Accounts != null)
             {
                 await ClearQueuesAndAccountsAsync();
 
-                if (@event.Accounts != null)
+                for (int i = 0; i < @event.Accounts.Length; i++)
                 {
-                    foreach (var account in @event.Accounts)
-                    {
-                        QueueAccount(account);
-                    }
+                    if (cancellationToken.IsCancellationRequested)
+                        break;
+
+                    QueueAccount(@event.Accounts[i]);
                 }
             }
         }
 
         public async Task HandleAsync(WalletUnlocked? @event, CancellationToken cancellationToken)
         {
-            await Task.Run(() =>
+            if (@event?.Accounts != null)
             {
-                if (@event != null && @event.Accounts != null)
+                await ClearQueuesAndAccountsAsync();
+
+                for (int i = 0; i < @event.Accounts.Length; i++)
                 {
-                    foreach (var account in @event.Accounts)
-                    {
-                        QueueAccount(account);
-                    }
+                    if (cancellationToken.IsCancellationRequested)
+                        break;
+
+                    QueueAccount(@event.Accounts[i]);
                 }
-            });
+            }
         }
 
         public async Task HandleAsync(WalletAccountsAdded? @event, CancellationToken cancellationToken)
         {
             await Task.Run(() =>
             {
-                if (@event != null && @event.Accounts != null)
+                if (@event?.Accounts != null)
                 {
-                    foreach (var account in @event.Accounts)
+                    for (int i = 0; i < @event.Accounts.Length; i++)
                     {
-                        QueueAccount(account);
+                        if (cancellationToken.IsCancellationRequested)
+                            break;
+
+                        QueueAccount(@event.Accounts[i]);
                     }
                 }
             });
