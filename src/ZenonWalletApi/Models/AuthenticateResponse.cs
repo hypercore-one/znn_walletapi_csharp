@@ -7,13 +7,13 @@ namespace ZenonWalletApi.Models
         /// <summary>
         /// The unique id of the user
         /// </summary>
-        [Required] 
+        [Required]
         public Guid Id { get; } = Id;
 
         /// <summary>
         /// The username of the user
         /// </summary>
-        [Required] 
+        [Required]
         public string Username { get; } = Username;
 
         /// <summary>

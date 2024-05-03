@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Security.Principal;
 using Zenon;
 using Zenon.Model.NoM.Json;
 using Zenon.Utils;

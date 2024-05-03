@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Zenon.Model.Primitives;
 
 namespace ZenonWalletApi.Models
 {

@@ -18,5 +18,15 @@ namespace ZenonWalletApi.Models
         /// <example>0</example>
         [Required]
         public int Index { get; } = Index;
+
+        public override int GetHashCode()
+        {
+            return Index;
+        }
+
+        public override string ToString()
+        {
+            return $"{Index}:{Address}";
+        }
     }
 }

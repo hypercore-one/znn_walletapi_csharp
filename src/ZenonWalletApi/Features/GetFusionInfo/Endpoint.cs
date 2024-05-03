@@ -40,7 +40,7 @@ namespace ZenonWalletApi.Features.GetFusionInfo
             // Retrieve plasma info
             var result = await client.Api.Embedded.Plasma
                 .GetEntriesByAddress(address.value, (uint)request.pageIndex, (uint)request.pageSize);
-            
+
             var json = result.ToJson();
 
             foreach (var element in json.list)

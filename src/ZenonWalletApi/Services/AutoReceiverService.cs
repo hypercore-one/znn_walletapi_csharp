@@ -1,34 +1,43 @@
 ﻿using Microsoft.Extensions.Options;
+using NetLah.Extensions.EventAggregator;
 using Newtonsoft.Json.Linq;
 using StreamJsonRpc;
 using System.Collections.Concurrent;
 using System.Net.WebSockets;
-using System.Xml.Linq;
 using Zenon.Client;
 using Zenon.Model;
 using Zenon.Model.NoM;
 using Zenon.Model.Primitives;
 using Zenon.Wallet;
+using ZenonWalletApi.Models;
+using ZenonWalletApi.Models.Events;
 using ZenonWalletApi.Options;
 
 namespace ZenonWalletApi.Services
 {
-    public interface IAutoReceiverService : IHostedService
+    public interface IAutoReceiverService : IHostedService,
+        IAsyncSubscriber<WalletInitialized>,
+        IAsyncSubscriber<WalletUnlocked>,
+        IAsyncSubscriber<WalletAccountsAdded>
     {
         bool IsEnabled { get; }
-
-        Task SubscribeAsync(Address accountAddress);
-
-        Task SubscribeAsync(int accountIndex);
-
-        Task UnsubscribeAsync(Address accountAddress);
-
-        Task UnsubscribeAsync(int accountIndex);
     }
 
-    internal class AutoReceiverService : BackgroundService, IAutoReceiverService, IDisposable
+    internal class AutoReceiverService : BackgroundService,
+        IAutoReceiverService, IDisposable
     {
-        public AutoReceiverService(ILogger<AutoReceiverService> logger, IOptions<AutoReceiverOptions> options, IWalletService wallet, INodeService node)
+        private readonly ConcurrentQueue<Hash> blockQueue = new ConcurrentQueue<Hash>();
+        private readonly ConcurrentQueue<WalletAccount> accountQueue = new ConcurrentQueue<WalletAccount>();
+
+        private readonly SemaphoreSlim accountLock = new SemaphoreSlim(1, 1);
+        private readonly List<WalletAccount> accountList = new List<WalletAccount>();
+        private volatile WalletAccount[] accountArray = new WalletAccount[0];
+
+        public AutoReceiverService(
+            ILogger<AutoReceiverService> logger,
+            IOptions<AutoReceiverOptions> options,
+            IWalletService wallet,
+            INodeService node)
         {
             Logger = logger;
             Options = options.Value;
@@ -36,9 +45,6 @@ namespace ZenonWalletApi.Services
             Wallet = wallet;
             Node = node;
         }
-
-        private ConcurrentDictionary<string, int> AddressMap { get; } = new ConcurrentDictionary<string, int>();
-        private ConcurrentQueue<Hash> Queue { get; } = new ConcurrentQueue<Hash>();
 
         private ILogger<AutoReceiverService> Logger { get; }
 
@@ -52,92 +58,132 @@ namespace ZenonWalletApi.Services
 
         public bool IsEnabled => Options.Enabled;
 
-        public async Task SubscribeAsync(Address accountAddress)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var accountIndex = await Wallet.GetAccountIndexAsync(accountAddress);
+            var init = true;
 
-            Logger.LogInformation($"Subscribe to: {accountAddress}");
-
-            AddressMap.TryAdd(accountAddress.ToString(), accountIndex);
-
-            await QueueUnreceivedTransactionsByAddressAsync(accountAddress);
-        }
-
-        public async Task SubscribeAsync(int accountIndex)
-        {
-            var account = await Wallet.GetAccountAsync(accountIndex);
-            var accountAddress = await account.GetAddressAsync();
-
-            Logger.LogInformation($"Subscribe to: {accountAddress}");
-
-            AddressMap.TryAdd(accountAddress.ToString(), accountIndex);
-
-            await QueueUnreceivedTransactionsByAddressAsync(accountAddress);
-        }
-
-        public async Task UnsubscribeAsync(Address address)
-        {
-            await Task.Run(() =>
+            while (!stoppingToken.IsCancellationRequested)
             {
-                if (AddressMap.Remove(address.ToString(), out _))
+                try
                 {
-                    Logger.LogInformation($"Unsubscribe from: {address}");
-                }
-            });
-        }
-
-        public async Task UnsubscribeAsync(int accountIndex)
-        {
-            await Task.Run(() =>
-            {
-                var address = AddressMap
-                    .Where(x => x.Value == accountIndex)
-                    .Select(x => x.Key)
-                    .FirstOrDefault();
-
-                if (address != null)
-                {
-                    if (AddressMap.Remove(address.ToString(), out _))
+                    if (await Timer.WaitForNextTickAsync(stoppingToken) && IsEnabled)
                     {
-                        Logger.LogInformation($"Unsubscribe from: {address}");
+                        if (Node.IsClosed)
+                        {
+                            Logger.LogDebug("Connect node");
+
+                            init = await Node.ConnectAsync(stoppingToken);
+                        }
+                        else
+                        {
+                            if (init) // Init after connection loss
+                            {
+                                var synced = await GetSyncStatusAsync();
+
+                                if (synced)
+                                {
+                                    // Resync all accounts when connection is lost
+                                    await QueueUnreceivedBlocksAsync();
+                                    await ListenToAllAccountBlocksAsync();
+
+                                    init = false;
+                                }
+                            }
+                            else
+                            {
+                                // Sync added accounts
+                                if (!accountQueue.IsEmpty)
+                                {
+                                    Logger.LogDebug("Process account queue");
+
+                                    await ProcessAccountQueueAsync();
+                                }
+
+                                if (!blockQueue.IsEmpty && Wallet.IsUnlocked)
+                                {
+                                    Logger.LogDebug("Process block queue");
+
+                                    await ProcessBlockQueueAsync();
+                                }
+                            }
+                        }
                     }
                 }
-            });
+                catch (WebSocketException e)
+                {
+                    Logger.LogWarning(e.Message);
+                }
+                catch (WalletException e)
+                {
+                    Logger.LogWarning(e.Message);
+                }
+                catch (NoConnectionException)
+                {
+                    Logger.LogWarning("No node connection");
+                }
+                catch (Exception e)
+                {
+                    Logger.LogError(e, "An unexpected exception occurred while processing queue");
+                }
+            }
+        }
+
+        private async Task<bool> GetSyncStatusAsync()
+        {
+            var syncInfo = await Node.Api.Stats.SyncInfo();
+
+            return (syncInfo.state == (int)SyncState.SyncDone ||
+                (syncInfo.targetHeight > 0 &&
+                syncInfo.currentHeight > 0 &&
+                (syncInfo.targetHeight - syncInfo.currentHeight) < 3));
         }
 
         private async Task ListenToAllAccountBlocksAsync()
         {
             Logger.LogDebug("Listen to accounts blocks");
 
-            Node.Subscribe("ledger.subscription", OnSubscriptionEvent);
+            Node.Subscribe("ledger.subscription", OnBlockEvent);
+
             await Node.Api.Subscribe.ToAllAccountBlocks();
         }
 
-        private void OnSubscriptionEvent(string subscription, JToken[] result)
+        private void OnBlockEvent(string subscription, JToken[] result)
         {
             foreach (var tx in result)
             {
                 var toAddressString = tx.Value<string?>("toAddress");
                 var hashString = tx.Value<string?>("hash");
 
-                if (toAddressString != null &&
-                    hashString != null &&
-                    AddressMap.ContainsKey(toAddressString))
+                if (toAddressString == null || hashString == null)
+                    continue;
+
+                try
                 {
-                    _ = QueueTxAsync(Hash.Parse(hashString));
+                    var toAddress = Address.Parse(toAddressString);
+
+                    if (HasAccount(toAddress))
+                    {
+                        QueueBlock(Hash.Parse(hashString));
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.LogWarning(ex, "Failed to queue block");
                 }
             }
         }
 
-        private async Task QueueUnreceivedTransactionsAsync()
+        private async Task QueueUnreceivedBlocksAsync()
         {
-            foreach (var address in AddressMap.Keys)
+            var accounts = GetAccounts();
+
+            foreach (var account in accounts)
             {
-                await QueueUnreceivedTransactionsByAddressAsync(Address.Parse(address));
+                await QueueUnreceivedBlocksByAddressAsync(account.Address);
             }
         }
 
-        private async Task QueueUnreceivedTransactionsByAddressAsync(Address address)
+        private async Task QueueUnreceivedBlocksByAddressAsync(Address address)
         {
             uint pageIndex = 0;
             var more = true;
@@ -145,13 +191,13 @@ namespace ZenonWalletApi.Services
             {
                 var unreceivedBlocks = await Node.Api.Ledger.GetUnreceivedBlocksByAddress(address, pageIndex);
 
-                if (unreceivedBlocks.List == null ||
+                if (unreceivedBlocks?.List == null ||
                     unreceivedBlocks.List.Length == 0)
                     break;
 
                 foreach (var unreceivedBlock in unreceivedBlocks.List)
                 {
-                    await QueueTxAsync(unreceivedBlock.Hash);
+                    QueueBlock(unreceivedBlock.Hash);
                 }
 
                 pageIndex += 1;
@@ -159,36 +205,28 @@ namespace ZenonWalletApi.Services
             }
         }
 
-        private async Task QueueTxAsync(Hash blockHash)
+        private void QueueBlock(Hash blockHash)
         {
-            if (!Queue.Contains(blockHash))
+            if (!blockQueue.Contains(blockHash))
             {
-                var syncInfo = await Node.Api.Stats.SyncInfo();
+                Logger.LogDebug($"Queue block: {blockHash}");
 
-                if (syncInfo.state == (int)SyncState.SyncDone ||
-                      (syncInfo.targetHeight > 0 &&
-                          syncInfo.currentHeight > 0 &&
-                          (syncInfo.targetHeight - syncInfo.currentHeight) < 3))
-                {
-                    Logger.LogDebug($"Queue block hash: {blockHash}");
-
-                    Queue.Enqueue(blockHash);
-                }
+                blockQueue.Enqueue(blockHash);
             }
         }
 
-        private async Task ProcessQueueAsync()
+        private async Task ProcessBlockQueueAsync()
         {
-            while (Queue.TryPeek(out var blockHash))
+            while (blockQueue.TryPeek(out var blockHash))
             {
                 try
                 {
                     var toAddress =
                         (await Node.Api.Ledger.GetAccountBlockByHash(blockHash))!.ToAddress;
 
-                    if (AddressMap.TryGetValue(toAddress.ToString(), out var accountIndex))
+                    if (HasAccount(toAddress))
                     {
-                        var account = await Wallet.GetAccountAsync(accountIndex);
+                        var account = await Wallet.GetAccountAsync(toAddress);
 
                         Logger.LogInformation($"Receive block: {blockHash}");
 
@@ -197,7 +235,7 @@ namespace ZenonWalletApi.Services
                         await Node.SendAsync(block, account);
                     }
 
-                    Queue.TryDequeue(out _);
+                    blockQueue.TryDequeue(out _);
                 }
                 catch (RemoteInvocationException e)
                 {
@@ -205,64 +243,139 @@ namespace ZenonWalletApi.Services
 
                     if (e.Message.Contains("already received"))
                     {
-                        Queue.TryDequeue(out _);
+                        blockQueue.TryDequeue(out _);
                     }
                 }
             }
         }
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        private bool HasAccount(Address address)
         {
-            var initialized = false;
+            return accountArray.FirstOrDefault(x => x.Address == address) != null;
+        }
 
-            while (!stoppingToken.IsCancellationRequested)
+        private WalletAccount? GetAccount(Address address)
+        {
+            return accountArray.FirstOrDefault(x => x.Address == address);
+        }
+
+        private WalletAccount[] GetAccounts()
+        {
+            return accountArray;
+        }
+
+        private async Task ClearAccountsAsync()
+        {
+            Logger.LogDebug("Clear accounts");
+
+            await accountLock.WaitAsync();
+
+            try
             {
-                await Timer.WaitForNextTickAsync(stoppingToken);
+                accountList.Clear();
+                accountArray = accountList.ToArray();
+            }
+            finally
+            {
+                accountLock.Release();
+            }
+        }
 
-                if (IsEnabled)
+        private void QueueAccount(WalletAccount account)
+        {
+            if (!accountQueue.Contains(account))
+            {
+                Logger.LogDebug($"Queue account: {account}");
+
+                accountQueue.Enqueue(account);
+            }
+        }
+
+        private async Task ProcessAccountQueueAsync()
+        {
+            var accountsToAdd = new List<WalletAccount>();
+
+            try
+            {
+                while (accountQueue.TryPeek(out var account))
                 {
+                    if (!HasAccount(account.Address))
+                    {
+                        await QueueUnreceivedBlocksByAddressAsync(account.Address);
+
+                        Logger.LogDebug($"Add account: {account}");
+
+                        accountsToAdd.Add(account);
+                    }
+
+                    accountQueue.TryDequeue(out _);
+                }
+            }
+            finally
+            {
+                if (accountsToAdd.Count > 0)
+                {
+                    await accountLock.WaitAsync();
+
                     try
                     {
-                        if (Node.IsClosed)
-                        {
-                            Logger.LogDebug("Connecting");
-
-                            initialized = false;
-
-                            await Node.ConnectAsync(stoppingToken);
-                        }
-                        else if (!initialized)
-                        {
-                            Logger.LogDebug("Initializing");
-
-                            await QueueUnreceivedTransactionsAsync();
-                            await ListenToAllAccountBlocksAsync();
-
-                            initialized = true;
-                        }
-                        else if (Wallet.IsUnlocked)
-                        {
-                            await ProcessQueueAsync();
-                        }
+                        accountList.AddRange(accountsToAdd);
+                        accountArray = accountList.ToArray();
                     }
-                    catch (WebSocketException e)
+                    finally
                     {
-                        Logger.LogWarning(e.Message);
-                    }
-                    catch (WalletException e)
-                    {
-                        Logger.LogWarning(e.Message);
-                    }
-                    catch (NoConnectionException)
-                    {
-                        Logger.LogWarning("No node connection");
-                    }
-                    catch (Exception e)
-                    {
-                        Logger.LogError(e, "An unexpected exception occurred");
+                        accountLock.Release();
                     }
                 }
             }
         }
+
+        #region Event Handlers
+
+        public async Task HandleAsync(WalletInitialized? @event, CancellationToken cancellationToken)
+        {
+            if (@event != null)
+            {
+                await ClearAccountsAsync();
+
+                if (@event.Accounts != null)
+                {
+                    foreach (var account in @event.Accounts)
+                    {
+                        QueueAccount(account);
+                    }
+                }
+            }
+        }
+
+        public async Task HandleAsync(WalletUnlocked? @event, CancellationToken cancellationToken)
+        {
+            await Task.Run(() =>
+            {
+                if (@event != null && @event.Accounts != null)
+                {
+                    foreach (var account in @event.Accounts)
+                    {
+                        QueueAccount(account);
+                    }
+                }
+            });
+        }
+
+        public async Task HandleAsync(WalletAccountsAdded? @event, CancellationToken cancellationToken)
+        {
+            await Task.Run(() =>
+            {
+                if (@event != null && @event.Accounts != null)
+                {
+                    foreach (var account in @event.Accounts)
+                    {
+                        QueueAccount(account);
+                    }
+                }
+            });
+        }
+
+        #endregion
     }
 }

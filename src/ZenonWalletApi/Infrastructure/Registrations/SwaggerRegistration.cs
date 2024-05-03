@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
-using System.Reflection;
 using Zenon.Model.Primitives;
 
 namespace ZenonWalletApi.Infrastructure.Registrations

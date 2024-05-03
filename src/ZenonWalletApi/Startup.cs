@@ -21,6 +21,8 @@ namespace ZenonWalletApi
 
         public virtual void ConfigureServices(IServiceCollection services)
         {
+            services.AddEventAggregator();
+
             services.AddSwagger(_configuration);
 
             services.AddApiServices(_configuration);

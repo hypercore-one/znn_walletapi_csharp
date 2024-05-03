@@ -17,13 +17,12 @@ using ZenonWalletApi.Features.MapGetWalletAccountsEndpoint;
 using ZenonWalletApi.Features.ReceiveTransfer;
 using ZenonWalletApi.Features.RestoreWallet;
 using ZenonWalletApi.Features.SendTransfer;
-using ZenonWalletApi.Features.SubscribeAccount;
 using ZenonWalletApi.Features.UnlockWallet;
-using ZenonWalletApi.Features.UnsubscribeAccount;
 using ZenonWalletApi.Features.ValidateAddress;
 using ZenonWalletApi.Infrastructure.ExceptionHandlers;
 using ZenonWalletApi.Infrastructure.Filters;
 using ZenonWalletApi.Models.Converters;
+using ZenonWalletApi.Models.Events;
 using ZenonWalletApi.Options;
 using ZenonWalletApi.Services;
 
@@ -76,6 +75,12 @@ namespace ZenonWalletApi.Infrastructure.Configurations
                 options.SerializerOptions.Converters.Add(new HashJsonConverter());
             });
 
+            // Events
+            services.AddScoped<WalletAccountsAdded>();
+            services.AddScoped<WalletInitialized>();
+            services.AddScoped<WalletLocked>();
+            services.AddScoped<WalletUnlocked>();
+
             // Services
             services.AddScoped<IJwtService, JwtService>();
             services.AddScoped<IUserService, UserService>();
@@ -87,6 +92,11 @@ namespace ZenonWalletApi.Infrastructure.Configurations
             services.AddHostedService(p => p.GetRequiredService<IWalletService>());
             services.AddHostedService(p => p.GetRequiredService<IAutoReceiverService>());
             services.AddHostedService(p => p.GetRequiredService<IAutoLockerService>());
+
+            // Subscribe
+            services.SubscribeAsync<WalletInitialized, IAutoReceiverService>(lifetime: SubscriberLifetime.Singleton);
+            services.SubscribeAsync<WalletUnlocked, IAutoReceiverService>(lifetime: SubscriberLifetime.Singleton);
+            services.SubscribeAsync<WalletAccountsAdded, IAutoReceiverService>(lifetime: SubscriberLifetime.Singleton);
 
             // Validation
             services.AddValidatorsFromAssemblyContaining<Program>(ServiceLifetime.Singleton);
@@ -110,9 +120,7 @@ namespace ZenonWalletApi.Infrastructure.Configurations
                 .RequireAuthorization();
 
             root.MapGroup("/auto-receiver").WithTags("AutoReceiver")
-                .MapGetAutoReceiverStatusEndpoint()
-                .MapSubscribeAccountEndpoint()
-                .MapUnsubscribeAccountEndpoint();
+                .MapGetAutoReceiverStatusEndpoint();
 
             root.MapGroup("/users").WithTags("Users")
                 .MapAuthenticateUserEndpoint();

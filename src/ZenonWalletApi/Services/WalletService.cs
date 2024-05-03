@@ -1,9 +1,11 @@
 ﻿using Microsoft.Extensions.Options;
+using NetLah.Extensions.EventAggregator;
 using Newtonsoft.Json.Linq;
 using Zenon.Model.Primitives;
 using Zenon.Wallet;
 using Zenon.Wallet.Json;
 using ZenonWalletApi.Models;
+using ZenonWalletApi.Models.Events;
 using ZenonWalletApi.Options;
 
 namespace ZenonWalletApi.Services
@@ -26,8 +28,6 @@ namespace ZenonWalletApi.Services
 
         Task<IWalletAccount> GetAccountAsync(int accountIndex);
 
-        Task<int> GetAccountIndexAsync(Address accountIndex);
-
         Task<WalletAccountList> AddAccountsAsync(int numberOfAccounts);
 
         Task<WalletAccountList> GetAccountsAsync(int pageIndex, int pageSize);
@@ -38,18 +38,27 @@ namespace ZenonWalletApi.Services
         private const string AccountCountKey = "walletApi__accountCount";
 
         private readonly SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
+        private List<WalletAccount>? _accounts;
+        private volatile WalletAccount[] _accountsArray = new WalletAccount[0];
 
-        public WalletService(ILogger<WalletService> logger, IOptions<WalletOptions> options, IAutoLockerService autoLocker)
+        public WalletService(
+            ILogger<WalletService> logger,
+            IOptions<WalletOptions> options,
+            IRootEventAggregator eventAggregator,
+            IAutoLockerService autoLocker)
         {
             Logger = logger;
             Options = options.Value;
-            WalletManager = new KeyStoreManager(Options.Path);
+            EventAggregator = eventAggregator;
             AutoLocker = autoLocker;
+            WalletManager = new KeyStoreManager(Options.Path);
         }
 
         private ILogger Logger { get; }
 
         private WalletOptions Options { get; }
+
+        private IRootEventAggregator EventAggregator { get; }
 
         private IAutoLockerService AutoLocker { get; }
 
@@ -59,8 +68,6 @@ namespace ZenonWalletApi.Services
 
         private KeyStore? Wallet { get; set; }
 
-        private List<WalletAccount>? Accounts { get; set; }
-
         private int NumFailedUnlockAttempts { get; set; }
 
         public bool IsInitialized => WalletDefinition != null;
@@ -69,13 +76,17 @@ namespace ZenonWalletApi.Services
 
         public async Task<string> InitAsync(string password)
         {
+            string mnemonic;
+
+            await _lock.WaitAsync();
+
             try
             {
-                await _lock.WaitAsync();
+                Logger.LogInformation($"Initialize: {Options.Name}");
 
                 // Initialize a new wallet
                 var walletDefinition = WalletManager
-                .CreateNew(password, Options.Name);
+                    .CreateNew(password, Options.Name);
 
                 AutoLocker.Activity();
 
@@ -83,27 +94,32 @@ namespace ZenonWalletApi.Services
                 var wallet = (KeyStore)await WalletManager.GetWalletAsync(walletDefinition,
                     new KeyStoreOptions() { DecryptionPassword = password });
 
+                InitAccounts(wallet, 1);
+
                 WalletDefinition = walletDefinition;
                 Wallet = wallet;
                 NumFailedUnlockAttempts = 0;
 
-                InitAccounts(1);
-
-                Logger.LogInformation($"Initialize: {Options.Name}");
-
-                return wallet!.Mnemonic;
+                mnemonic = wallet!.Mnemonic;
             }
             finally
             {
                 _lock.Release();
-            } 
+            }
+
+            // Raise events
+            await EventAggregator.PublishAsync(new WalletInitialized() { Accounts = _accountsArray });
+
+            return mnemonic;
         }
 
         public async Task RestoreAsync(string password, string mnemonic)
         {
+            await _lock.WaitAsync();
+
             try
             {
-                await _lock.WaitAsync();
+                Logger.LogInformation($"Restore: {Options.Name}");
 
                 // Initialize an existing wallet
                 var walletDefinition = WalletManager
@@ -115,50 +131,60 @@ namespace ZenonWalletApi.Services
                 var wallet = (KeyStore)await WalletManager.GetWalletAsync(walletDefinition,
                     new KeyStoreOptions() { DecryptionPassword = password });
 
+                InitAccounts(wallet, 1);
+
                 WalletDefinition = walletDefinition;
                 Wallet = wallet;
                 NumFailedUnlockAttempts = 0;
-
-                InitAccounts(1);
-
-                Logger.LogInformation($"Restore: {Options.Name}");
             }
             finally
             {
                 _lock.Release();
             }
+
+            // Raise events
+            await EventAggregator.PublishAsync(new WalletInitialized() { Accounts = _accountsArray });
         }
 
         public async Task UnlockAsync(string password)
         {
             AssertInitialized();
 
+            var init = false;
+
+            await _lock.WaitAsync();
+
             try
             {
-                await _lock.WaitAsync();
+                Logger.LogInformation($"Unlock: {Options.Name}");
 
                 AutoLocker.Activity();
 
                 var wallet = await WalletManager.GetWalletAsync(WalletDefinition,
                     new KeyStoreOptions() { DecryptionPassword = password }) as KeyStore;
 
-                Wallet = wallet;
-                NumFailedUnlockAttempts = 0;
-
-                if (Accounts == null)
+                if (_accounts == null)
                 {
                     var addressCount = ReadAccountCount(WalletDefinition!.WalletId);
 
                     if (addressCount == -1)
                         addressCount = 1; // Add base address by default
 
-                    InitAccounts(addressCount);
+                    InitAccounts(wallet!, addressCount);
+
+                    init = true;
                 }
 
-                Logger.LogInformation($"Unlock: {Options.Name}");
+                Wallet = wallet;
+                NumFailedUnlockAttempts = 0;
             }
             catch (IncorrectPasswordException)
             {
+                _accounts = null;
+                _accountsArray = new WalletAccount[0];
+
+                Wallet = null;
+
                 if (Options.EraseLimit.HasValue)
                 {
                     NumFailedUnlockAttempts += 1;
@@ -177,59 +203,49 @@ namespace ZenonWalletApi.Services
             {
                 _lock.Release();
             }
+
+            // Raise events
+            await EventAggregator.PublishAsync(new WalletUnlocked() { Accounts = init ? _accountsArray : new WalletAccount[0] });
         }
 
         public async Task LockAsync()
         {
+            await _lock.WaitAsync();
+
             try
             {
-                await _lock.WaitAsync();
+                Logger.LogInformation($"Lock: {Options.Name}");
 
                 AutoLocker.Activity();
 
                 Wallet = null;
                 NumFailedUnlockAttempts = 0;
-
-                Logger.LogInformation($"Lock: {Options.Name}");
             }
             finally
             {
                 _lock.Release();
             }
+
+            // Raise events
+            await EventAggregator.PublishAsync(new WalletLocked());
         }
 
         public async Task<IWalletAccount> GetAccountAsync(Address address)
         {
-            AssertInitialized();
-            AssertUnlocked();
-
-            var result = Accounts!.FirstOrDefault(x => x.Address == address);
+            var wallet = GetWallet();
+            var result = _accountsArray!.FirstOrDefault(x => x.Address == address);
             if (result != null)
-                return await GetAccountAsync(result.Index);
+                return await wallet.GetAccountAsync(result.Index);
             throw new WalletException("Account does not exist");
         }
 
         public async Task<IWalletAccount> GetAccountAsync(int accountIndex)
         {
             var wallet = GetWallet();
-            var result = Accounts!.FirstOrDefault(x => x.Index == accountIndex);
+            var result = _accountsArray!.FirstOrDefault(x => x.Index == accountIndex);
             if (result != null)
                 return await wallet.GetAccountAsync(result.Index);
             throw new WalletException("Account does not exist");
-        }
-
-        public async Task<int> GetAccountIndexAsync(Address address)
-        {
-            return await Task.Run(() =>
-            {
-                AssertInitialized();
-                AssertUnlocked();
-
-                var result = Accounts?.FirstOrDefault(x => x.Address == address);
-                if (result != null)
-                    return result.Index;
-                throw new WalletException("Account does not exist");
-            });
         }
 
         public async Task<WalletAccountList> GetAccountsAsync(int pageIndex, int pageSize)
@@ -239,9 +255,9 @@ namespace ZenonWalletApi.Services
                 AssertInitialized();
                 AssertUnlocked();
 
-                var pagedItems = Accounts!.Skip(pageIndex * pageSize).Take(pageSize);
+                var pagedItems = _accountsArray!.Skip(pageIndex * pageSize).Take(pageSize);
 
-                return new WalletAccountList(pagedItems.ToArray(), Accounts!.Count);
+                return new WalletAccountList(pagedItems.ToArray(), _accountsArray!.Length);
             });
         }
 
@@ -250,15 +266,16 @@ namespace ZenonWalletApi.Services
             if (numberOfAccounts < 1)
                 throw new ArgumentOutOfRangeException(nameof(numberOfAccounts), numberOfAccounts, "must be bigger than 0");
 
-            var accountsToAdd = new List<WalletAccount>();
+            WalletAccountList result;
 
             await _lock.WaitAsync();
+
             try
             {
                 var wallet = GetWallet();
-                
 
-                var lastIndex = Accounts!.Count - 1;
+                var accountsToAdd = new List<WalletAccount>();
+                var lastIndex = _accounts!.Count - 1;
 
                 for (int i = 0; i < numberOfAccounts; i++)
                 {
@@ -268,16 +285,22 @@ namespace ZenonWalletApi.Services
                     accountsToAdd.Add(new WalletAccount(address, lastIndex));
                 }
 
-                WriteAccountCount(WalletDefinition!.WalletId, Accounts.Count + accountsToAdd.Count);
+                WriteAccountCount(WalletDefinition!.WalletId, _accounts!.Count + accountsToAdd.Count);
 
-                Accounts.AddRange(accountsToAdd);
+                _accounts.AddRange(accountsToAdd);
+                _accountsArray = _accounts.ToArray();
+
+                result = new WalletAccountList(accountsToAdd.ToArray(), _accounts.Count);
             }
             finally
             {
                 _lock.Release();
             }
 
-            return new WalletAccountList(accountsToAdd.ToArray(), Accounts.Count);
+            // Raise events
+            await EventAggregator.PublishAsync(new WalletAccountsAdded() { Accounts = result.List });
+
+            return result;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -287,9 +310,10 @@ namespace ZenonWalletApi.Services
 
             if (walletDefinition != null)
             {
+                await _lock.WaitAsync();
+
                 try
                 {
-                    await _lock.WaitAsync();
                     WalletDefinition = walletDefinition;
                     NumFailedUnlockAttempts = 0;
                 }
@@ -329,19 +353,20 @@ namespace ZenonWalletApi.Services
             return Wallet!;
         }
 
-        private void InitAccounts(int numberOfAccounts)
+        private void InitAccounts(KeyStore wallet, int numberOfAccounts)
         {
             var list = new List<WalletAccount>();
 
             for (int i = 0; i < numberOfAccounts; i++)
             {
-                var address = Wallet!.GetKeyPair(i).Address;
+                var address = wallet!.GetKeyPair(i).Address;
                 list.Add(new WalletAccount(address, i));
             }
 
             WriteAccountCount(WalletDefinition!.WalletId, list.Count());
 
-            Accounts = list;
+            _accounts = list;
+            _accountsArray = list.ToArray();
         }
 
         private int ReadAccountCount(string filePath)
