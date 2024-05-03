@@ -121,6 +121,10 @@ namespace ZenonWalletApi.Services
                 {
                     Logger.LogWarning("No node connection");
                 }
+                catch (OperationCanceledException)
+                {
+                    // no-op
+                }
                 catch (Exception e)
                 {
                     Logger.LogError(e, "An unexpected exception occurred while processing queue");
