@@ -94,7 +94,7 @@ namespace ZenonWalletApi.Services
                 var wallet = (KeyStore)await WalletManager.GetWalletAsync(walletDefinition,
                     new KeyStoreOptions() { DecryptionPassword = password });
 
-                InitAccounts(wallet, 1);
+                InitAccounts(WalletDefinition!, wallet, 1);
 
                 WalletDefinition = walletDefinition;
                 Wallet = wallet;
@@ -131,7 +131,7 @@ namespace ZenonWalletApi.Services
                 var wallet = (KeyStore)await WalletManager.GetWalletAsync(walletDefinition,
                     new KeyStoreOptions() { DecryptionPassword = password });
 
-                InitAccounts(wallet, 1);
+                InitAccounts(WalletDefinition!, wallet, 1);
 
                 WalletDefinition = walletDefinition;
                 Wallet = wallet;
@@ -170,7 +170,7 @@ namespace ZenonWalletApi.Services
                     if (addressCount == -1)
                         addressCount = 1; // Add base address by default
 
-                    InitAccounts(wallet!, addressCount);
+                    InitAccounts(WalletDefinition, wallet!, addressCount);
 
                     init = true;
                 }
@@ -353,7 +353,7 @@ namespace ZenonWalletApi.Services
             return Wallet!;
         }
 
-        private void InitAccounts(KeyStore wallet, int numberOfAccounts)
+        private void InitAccounts(KeyStoreDefinition walletDefinition, KeyStore wallet, int numberOfAccounts)
         {
             var list = new List<WalletAccount>();
 
@@ -363,7 +363,7 @@ namespace ZenonWalletApi.Services
                 list.Add(new WalletAccount(address, i));
             }
 
-            WriteAccountCount(WalletDefinition!.WalletId, list.Count());
+            WriteAccountCount(walletDefinition.WalletId, list.Count());
 
             _accounts = list;
             _accountsArray = list.ToArray();
