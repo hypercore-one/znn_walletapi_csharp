@@ -264,14 +264,17 @@ namespace ZenonWalletApi.Services
             return accountArray;
         }
 
-        private async Task ClearAccountsAsync()
+        private async Task ClearQueuesAndAccountsAsync()
         {
-            Logger.LogDebug("Clear accounts");
+            Logger.LogDebug("Clear queues and accounts");
 
             await accountLock.WaitAsync();
 
             try
             {
+                blockQueue.Clear();
+                accountQueue.Clear();
+                
                 accountList.Clear();
                 accountArray = accountList.ToArray();
             }
@@ -336,7 +339,7 @@ namespace ZenonWalletApi.Services
         {
             if (@event != null)
             {
-                await ClearAccountsAsync();
+                await ClearQueuesAndAccountsAsync();
 
                 if (@event.Accounts != null)
                 {
