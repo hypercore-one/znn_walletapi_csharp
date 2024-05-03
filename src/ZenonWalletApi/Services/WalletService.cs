@@ -94,7 +94,7 @@ namespace ZenonWalletApi.Services
                 var wallet = (KeyStore)await WalletManager.GetWalletAsync(walletDefinition,
                     new KeyStoreOptions() { DecryptionPassword = password });
 
-                InitAccounts(WalletDefinition!, wallet, 1);
+                InitAccounts(walletDefinition, wallet, 1);
 
                 WalletDefinition = walletDefinition;
                 Wallet = wallet;
@@ -131,7 +131,7 @@ namespace ZenonWalletApi.Services
                 var wallet = (KeyStore)await WalletManager.GetWalletAsync(walletDefinition,
                     new KeyStoreOptions() { DecryptionPassword = password });
 
-                InitAccounts(WalletDefinition!, wallet, 1);
+                InitAccounts(walletDefinition, wallet, 1);
 
                 WalletDefinition = walletDefinition;
                 Wallet = wallet;
