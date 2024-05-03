@@ -9,7 +9,7 @@ namespace ZenonWalletApi.Features.AddWalletAccounts
         public static IEndpointRouteBuilder MapAddWalletAccountsEndpoint(this IEndpointRouteBuilder endpoints)
         {
             endpoints
-                .MapPost("/accounts", GetWalletAccountAddressAsync)
+                .MapPost("/accounts", AddWalletAccountAddressAsync)
                 .WithName("AddWalletAccounts")
                 .Produces<WalletAccountList>()
                 .Produces(StatusCodes.Status401Unauthorized, typeof(string), contentType: "text/plain")
@@ -27,7 +27,7 @@ namespace ZenonWalletApi.Features.AddWalletAccounts
         /// <para>Requires User authorization policy</para>
         /// <para>Requires Wallet to be initialized and unlocked</para>
         /// </remarks>
-        public static async Task<WalletAccountList> GetWalletAccountAddressAsync(
+        public static async Task<WalletAccountList> AddWalletAccountAddressAsync(
             IWalletService wallet,
             [AsParameters][Validate] AddWalletAccountsRequest request)
         {
