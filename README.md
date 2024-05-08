@@ -2,14 +2,20 @@
 
 # Zenon Wallet API for .NET
 
-A .NET based cross-platform Wallet API for interacting with Zenon Alphanet - Network of Momentum Phase 1
+The Zenon Wallet API for .NET is a cross-platform solution designed to interface with the Zenon Alphanet. This API facilitates various operations such as accessing blockchain data, managing wallets, and submitting transactions. It's built to be compatible with Microsoft .NET 8.0 and requires a Zenon Node for full functionality.
 
-The Wallet API provides access to Zenon Node functionalities, including blockchain data retrieval, transaction submission, wallet management, and more. It offers a range of endpoints to interact with the Zenon Network programmatically.
+Key features of the API include:
+
+- Blockchain Interaction: Users can retrieve blockchain data and submit transactions directly through the API.
+- Wallet Management: Provides functionalities for wallet creation, management, and interaction with the Zenon network.
+- Extensive Documentation and Testing: The API comes with detailed documentation and a Swagger UI for easy testing and interaction.
+- Configuration and Security: It supports JWT bearer authentication for secure access, and its configuration is customizable to meet various user needs.
+- Development and Contribution: Designed for .NET developers, it also welcomes contributions from the community to enhance its capabilities.
 
 ## Requirements
 
 - [Microsoft .NET 8.0](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
-- [Zenon Node](https://github.com/zenon-network/go-zenon)
+- [Zenon Node](https://github.com/zenon-network/go-zenon) - [Setup Instructions](https://forum.hypercore.one/t/how-to-setup-a-public-node/422)
 
 ## Dependencies
 
@@ -18,11 +24,11 @@ The Wallet API provides access to Zenon Node functionalities, including blockcha
 
 ## Documentation
 
-To explore the endpoints without setting up your own Wallet API, you can visit the [online Wallet API](https://znnwalletapi.apidog.io). You can call the endpoints via the web interface in your browser by clicking Try it out.
+To explore the endpoints without setting up your own Wallet API, you can visit the [online Wallet API](https://alletapi.hypercore.one). You can call the endpoints via the web interface in your browser by clicking Try it out.
 
-> Note: to access protected API routes, an user account is required. Please contact us if you want to try it out.
+> Note: to access protected API routes, a user account is required. Please contact us if you want to try it out.
 
-When the API is installed, configured and running, an user-friendly Swagger UI is available at `https://localhost:443/swagger/`.
+When the API is installed, configured and running, a user-friendly Swagger UI is available at `https://localhost:443/swagger/`.
 
 ## Installation on Linux
 
@@ -151,7 +157,7 @@ print(hashed_password)
 
 A node client needs to be configured in order to interact with the Zenon Network.
 
-The node client can either connect a local Zenon Node or connect an external node. It is highly recommended to setup and use a local [Zenon Node](https://github.com/zenon-network/go-zenon) in a production environment.
+The node client can either connect a local Zenon Node or connect an external node. It is highly recommended to setup and use a local [Zenon Node](https://github.com/zenon-network/go-zenon) in a production environment.  Setup instructions can be found [here](https://forum.hypercore.one/t/how-to-setup-a-public-node/422).
 
 **Configuration**
 
@@ -263,9 +269,9 @@ Use the `Api:AutoLocker` configuration section to configure the auto-locker.
 
 ### PlasmaBot
 
-The community plasma-bot offers plasma as a service. It generates plasma by fusing QSR for a limited amount of time to an address.
+The community [plasma-bot](https://zenonhub.io/tools/plasma-bot) offers plasma as a service. It generates plasma by fusing QSR for a limited amount of time to an address.
 
-> Note: A valid API key is needed to make use of the plasma-bot.
+> Note: A valid API key is needed to make use of the plasma-bot. Contact us to receive an key.
 
 **Configuration**
 
