@@ -24,7 +24,7 @@ Key features of the API include:
 
 ## Documentation
 
-To explore the endpoints without setting up your own Wallet API, you can visit the [online Wallet API](https://alletapi.hypercore.one). You can call the endpoints via the web interface in your browser by clicking Try it out.
+To explore the endpoints without setting up your own Wallet API, you can visit the [online Wallet API](https://walletapi.hypercore.one). You can call the endpoints via the web interface in your browser by clicking Try it out.
 
 > Note: to access protected API routes, a user account is required. Please contact us if you want to try it out.
 
@@ -163,14 +163,18 @@ The node client can either connect a local Zenon Node or connect an external nod
 
 Use the `Api:Node` configuration section to configure the node client.
 
-| Name                                   | Description                                                  | Default                  |
-| -------------------------------------- | :----------------------------------------------------------- | ------------------------ |
-| `NodeUrl` **uri** *optional*           | The url of the node.                                         | `"ws://127.0.0.1:35998"` |
-| `ChainId`  **int** *optional*          | The chain identifier the client uses when signing and sending transactions. | `1`                      |
-| `ProtocolVersion` **int** *optional*   | The protocol version the client uses when signing and sending transactions. | `1`                      |
-| `MaxPoWThreads` **int** *optional*[^1] | The maximum number of PoW threads that can run simultaneously. Must be a value between `1` and `100`. | `5`                      |
+| Name                                        | Description                                                  | Default                  |
+| ------------------------------------------- | :----------------------------------------------------------- | ------------------------ |
+| `NodeUrl` **uri** *optional*                | The url of the node.                                         | `"ws://127.0.0.1:35998"` |
+| `ChainId`  **int** *optional*               | The chain identifier the client uses when signing and sending transactions. | `1`                      |
+| `ProtocolVersion` **int** *optional*        | The protocol version the client uses when signing and sending transactions. | `1`                      |
+| `MaxPoWThreads` **int** *optional*[^1]      | The maximum amount of Proof-of-Work threads that can run simultaneously. Must be a value between `1` and `100`. | `5`                      |
+| `PlasmaMode` **plasmamode** *optional* [^2] | Indicates how plasma is generated when the minimum QSR threshold is not reached. | `PoW`                    |
+| `MinQsrThreshold` **int** *optional*        | The minimum amount of QSR that must be fused to an address. Must be a value between `100` and `5000`. | `100`                      |
+| `FuseTimeout` **timespan** *optional*       | The maximum amount of time to wait for the fusion to complete. | `00:00:30`               |
 
 [^1]: PoW is performed on the machine to generate plasma in order to send or receive transactions when the sending or receiving address does not have sufficient plasma.
+[^2]: The plasma-bot needs to be correctly configured with an API key in order to use plasma mode `Fuse` or `Both`.  
 
 **Example**
 
@@ -180,7 +184,10 @@ Use the `Api:Node` configuration section to configure the node client.
     "NodeUrl": "ws://127.0.0.1:35998",
     "ChainId": 1,
     "ProtocolVersion": 1,
-    "MaxPoWThreads": 5
+    "MaxPoWThreads": 5,
+    "PlasmaMode": "Both",
+    "MinQsrThreshold": 100,
+    "FuseTimeout": "00:00:30"
   }
 }
 ```
@@ -197,11 +204,11 @@ Use the `Api:Wallet` configuration section to configure the wallet.
 
 | Name                            | Description                                                  | Default               |
 | ------------------------------- | :----------------------------------------------------------- | --------------------- |
-| `Path` **string** *optioanl*    | The directory path to store the encrypted wallet file.       | `"~/.znn/wallet"`[^2] |
+| `Path` **string** *optioanl*    | The directory path to store the encrypted wallet file.       | `"~/.znn/wallet"`[^3] |
 | `Name` **string** *optional*    | The name of the encrypted wallet file.                       | `"api"`               |
 | `EraseLimit` **int** *optional* | The number of unlock attempts before the wallet is uninitialized. Can be `null`. | `3`                   |
 
-[^2]: The default value varies depending on the OS being used.
+[^3]: The default value varies depending on the OS being used.
 
 **Example**
 
