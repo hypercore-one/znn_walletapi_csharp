@@ -24,7 +24,8 @@ namespace ZenonWalletApi.Features.LockWallet
         /// <para>Requires User authorization policy</para>
         /// </remarks>
         public static async Task<IResult> LockWalletAsync(
-            IWalletService service)
+            IWalletService service,
+            CancellationToken cancellationToken = default)
         {
             await service.LockAsync();
 

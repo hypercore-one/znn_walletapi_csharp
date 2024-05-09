@@ -31,9 +31,19 @@ namespace ZenonWalletApi.Features.FuseBotPlasma
         /// </remarks>
         public static async Task<IResult> FuseBotPlasmaAsync(
             IPlasmaBotService plasmaBot,
-            [FromBody][Validate] FuseBotPlasmaRequest request)
+            [FromBody][Validate] FuseBotPlasmaRequest request,
+            CancellationToken cancellationToken = default)
         {
-            return await plasmaBot.FuseAsync(request.Address);
+            try
+            {
+                await plasmaBot.FuseAsync(request.Address, cancellationToken);
+
+                return Results.Ok();
+            }
+            catch (HttpRequestException ex)
+            {
+                return Results.Problem(detail: ex.Message, statusCode: (int)ex.StatusCode!);
+            }
         }
     }
 }

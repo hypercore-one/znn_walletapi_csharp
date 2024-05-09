@@ -30,9 +30,10 @@ namespace ZenonWalletApi.Features.GetAccountInfo
         /// </remarks>
         public static async Task<JAccountInfo> GetAccountInfoAsync(
             INodeService client,
-            [Validate] AddressString address)
+            [Validate] AddressString address,
+            CancellationToken cancellationToken = default)
         {
-            await client.ConnectAsync();
+            await client.ConnectAsync(cancellationToken);
 
             var result = await client.Api.Ledger.GetAccountInfoByAddress(address.value);
 

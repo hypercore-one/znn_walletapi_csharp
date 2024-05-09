@@ -24,7 +24,8 @@ namespace ZenonWalletApi.Features.GetWalletStatus
         /// <para>Requires User authorization policy</para>
         /// </remarks>
         public static WalletStatusResponse GetWalletStatus(
-            IWalletService wallet)
+            IWalletService wallet,
+            CancellationToken cancellationToken = default)
         {
             return new WalletStatusResponse(wallet.IsInitialized, wallet.IsUnlocked);
         }

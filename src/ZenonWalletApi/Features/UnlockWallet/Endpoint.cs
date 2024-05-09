@@ -30,7 +30,8 @@ namespace ZenonWalletApi.Features.UnlockWallet
         /// </remarks>
         public static async Task<IResult> UnlockWalletAsync(
             IWalletService wallet,
-            [Validate] UnlockWalletRequest request)
+            [Validate] UnlockWalletRequest request,
+            CancellationToken cancellationToken = default)
         {
             await wallet.UnlockAsync(request.Password);
 

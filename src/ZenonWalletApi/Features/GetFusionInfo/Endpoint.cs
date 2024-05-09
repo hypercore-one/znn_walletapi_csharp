@@ -31,9 +31,10 @@ namespace ZenonWalletApi.Features.GetFusionInfo
             IWalletService wallet,
             INodeService client,
             [Validate] AddressString address,
-            [AsParameters][Validate] PlasmaFused request)
+            [AsParameters][Validate] PlasmaFused request,
+            CancellationToken cancellationToken = default)
         {
-            await client.ConnectAsync();
+            await client.ConnectAsync(cancellationToken);
 
             var syncInfo = await client.Api.Stats.SyncInfo();
 

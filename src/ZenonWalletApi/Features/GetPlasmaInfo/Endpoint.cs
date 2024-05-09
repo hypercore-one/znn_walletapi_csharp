@@ -30,9 +30,10 @@ namespace ZenonWalletApi.Features.GetPlasmaInfo
         /// </remarks>
         public static async Task<JPlasmaInfo> GetPlasmaInfoAsync(
             INodeService client,
-            [Validate] AddressString address)
+            [Validate] AddressString address,
+            CancellationToken cancellationToken = default)
         {
-            await client.ConnectAsync();
+            await client.ConnectAsync(cancellationToken);
 
             // Retrieve plasma info
             var result = await client.Api.Embedded.Plasma.Get(address.value);

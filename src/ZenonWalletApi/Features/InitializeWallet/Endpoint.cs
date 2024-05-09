@@ -29,7 +29,8 @@ namespace ZenonWalletApi.Features.InitializeWallet
         /// </remarks>
         public static async Task<InitWalletResponse> InitializeWalletAsync(
             IWalletService service,
-            [Validate] InitWalletRequest request)
+            [Validate] InitWalletRequest request,
+            CancellationToken cancellationToken = default)
         {
             var mnemonic = await service.InitAsync(request.Password);
 

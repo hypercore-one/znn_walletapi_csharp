@@ -29,7 +29,8 @@ namespace ZenonWalletApi.Features.AddWalletAccounts
         /// </remarks>
         public static async Task<WalletAccountList> AddWalletAccountAddressAsync(
             IWalletService wallet,
-            [AsParameters][Validate] AddWalletAccountsRequest request)
+            [AsParameters][Validate] AddWalletAccountsRequest request,
+            CancellationToken cancellationToken = default)
         {
             return await wallet.AddAccountsAsync(request.numberOfAccounts);
         }

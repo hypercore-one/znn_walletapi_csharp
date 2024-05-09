@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
+using System.Globalization;
 using System.Net;
 using Zenon.Model.Primitives;
 using ZenonWalletApi.Options;
@@ -8,11 +9,14 @@ namespace ZenonWalletApi.Services
 {
     public interface IPlasmaBotService
     {
-        Task<IResult> FuseAsync(Address address);
+        Task<DateTime?> GetExpirationAsync(Address address, CancellationToken cancellationToken = default);
+        Task FuseAsync(Address address, CancellationToken cancellationToken = default);
     }
 
     internal class PlasmaBotService : IPlasmaBotService
     {
+        private const string DateTimeFormat = "yyyy-dd-MM HH:mm:ss";
+
         public PlasmaBotService(ILogger<PlasmaBotService> logger, IOptions<PlasmaBotOptions> options, HttpClient httpClient)
         {
             Logger = logger;
@@ -28,18 +32,51 @@ namespace ZenonWalletApi.Services
 
         private HttpClient HttpClient { get; }
 
-        public async Task<IResult> FuseAsync(Address address)
+        public async Task<DateTime?> GetExpirationAsync(Address address, CancellationToken cancellationToken = default)
         {
-            var response = await HttpClient.PostAsJsonAsync("fuse", new { address = address.ToString() });
+            var response = await HttpClient.GetAsync($"expiration/{address}", cancellationToken);
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                try
+                {
+                    var json = await response.Content.ReadFromJsonAsync<JToken>(cancellationToken);
+
+                    if (json != null)
+                    {
+                        var data = json.Value<string?>("data");
+
+                        if (data != null)
+                        {
+                            return DateTime.ParseExact(data, DateTimeFormat, CultureInfo.InvariantCulture);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Logger.LogWarning(e, "Failed to parse plasma-bot expiration response");
+
+                    throw;
+                }
+            }
+
+            return null;
+        }
+
+        public async Task FuseAsync(Address address, CancellationToken cancellationToken = default)
+        {
+            Logger.LogDebug($"Fusing plasma for address: {address}");
+
+            var response = await HttpClient.PostAsJsonAsync("fuse", new { address = address.ToString() }, cancellationToken);
 
             if (response.StatusCode != HttpStatusCode.OK)
             {
                 string? message = null;
-                int statusCode = (int)response.StatusCode;
+                var statusCode = response.StatusCode;
 
                 try
                 {
-                    var json = await response.Content.ReadFromJsonAsync<JToken>();
+                    var json = await response.Content.ReadFromJsonAsync<JToken>(cancellationToken);
 
                     if (json != null)
                     {
@@ -48,17 +85,13 @@ namespace ZenonWalletApi.Services
                 }
                 catch (Exception e)
                 {
-                    message = "Failed to parse fuse response";
-                    statusCode = (int)HttpStatusCode.InternalServerError;
+                    message = "Failed to parse plasma-bot fuse response";
+                    statusCode = HttpStatusCode.InternalServerError;
 
                     Logger.LogWarning(e, message);
                 }
 
-                return Results.Problem(message, null, statusCode);
-            }
-            else
-            {
-                return Results.Ok();
+                throw new HttpRequestException(message, null, statusCode);
             }
         }
     }

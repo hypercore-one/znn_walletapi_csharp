@@ -42,13 +42,15 @@ namespace ZenonWalletApi.Features.SendTransfer
         /// <param name="client"></param>
         /// <param name="account" example="z1qqjnwjjpnue8xmmpanz6csze6tcmtzzdtfsww7 or 0">The account address or index to send from</param>
         /// <param name="request"></param>
+        /// <param name="cancellationToken"></param>
         public static async Task<JAccountBlockTemplate> SendTransferAsync(
             IWalletService wallet,
             INodeService client,
             [Validate] AccountString account,
-            [FromBody][Validate] SendTransferRequest request)
+            [FromBody][Validate] SendTransferRequest request,
+            CancellationToken cancellationToken = default)
         {
-            await client.ConnectAsync();
+            await client.ConnectAsync(cancellationToken);
 
             IWalletAccount walletAccount;
             Address address;
@@ -112,7 +114,7 @@ namespace ZenonWalletApi.Features.SendTransfer
                 request.Address, request.TokenStandard, amount);
 
             // Send block
-            var response = await client.SendAsync(block, walletAccount);
+            var response = await client.SendAsync(block, walletAccount, cancellationToken);
 
             // Return block hash
             return response.ToJson();

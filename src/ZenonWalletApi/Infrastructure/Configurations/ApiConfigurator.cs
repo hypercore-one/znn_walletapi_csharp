@@ -6,6 +6,7 @@ using ZenonWalletApi.Features.FuseBotPlasma;
 using ZenonWalletApi.Features.FusePlasma;
 using ZenonWalletApi.Features.GetAccountInfo;
 using ZenonWalletApi.Features.GetAutoReceiverStatus;
+using ZenonWalletApi.Features.GetBotPlasmaExpiration;
 using ZenonWalletApi.Features.GetFusionInfo;
 using ZenonWalletApi.Features.GetPlasmaInfo;
 using ZenonWalletApi.Features.GetReceivedAccountBlocks;
@@ -151,6 +152,7 @@ namespace ZenonWalletApi.Infrastructure.Configurations
 
             root.MapGroup("/utilities").WithTags("Utilities")
                 .MapFuseBotPlasmaEndpoint()
+                .MapGetBotPlasmaExpirationEndpoint()
                 .MapValidateAddressEndpoint();
 
             return root;

@@ -23,7 +23,8 @@ namespace ZenonWalletApi.Features.AuthenticateUser
         /// </summary>
         public static async Task<IResult> AuthenticateUserAsync(
             IUserService users,
-            [Validate] AuthenticateRequest request)
+            [Validate] AuthenticateRequest request,
+            CancellationToken cancellationToken = default)
         {
             var result = await users.AuthenticateAsync(request);
 

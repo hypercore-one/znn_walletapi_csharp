@@ -29,7 +29,8 @@ namespace ZenonWalletApi.Features.RestoreWallet
         /// </remarks>
         public static async Task<IResult> RestoreWalletAsync(
             IWalletService service,
-            [Validate] RestoreWalletRequest request)
+            [Validate] RestoreWalletRequest request,
+            CancellationToken cancellationToken = default)
         {
             await service.RestoreAsync(request.Password, request.Mnemonic);
 

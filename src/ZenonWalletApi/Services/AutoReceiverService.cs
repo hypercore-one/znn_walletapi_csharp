@@ -221,7 +221,7 @@ namespace ZenonWalletApi.Services
 
         private async Task ProcessBlockQueueAsync(CancellationToken cancellationToken)
         {
-            while (!cancellationToken.IsCancellationRequested && 
+            while (!cancellationToken.IsCancellationRequested &&
                 blockQueue.TryPeek(out var blockHash))
             {
                 try
@@ -274,7 +274,7 @@ namespace ZenonWalletApi.Services
 
                 blockQueue.Clear();
                 accountQueue.Clear();
-                
+
                 accountList.Clear();
                 accountArray = accountList.ToArray();
             }

@@ -170,8 +170,8 @@ Use the `Api:Node` configuration section to configure the node client.
 | `ProtocolVersion` **int** *optional*        | The protocol version the client uses when signing and sending transactions. | `1`                      |
 | `MaxPoWThreads` **int** *optional*[^1]      | The maximum amount of Proof-of-Work threads that can run simultaneously. Must be a value between `1` and `100`. | `5`                      |
 | `PlasmaMode` **plasmamode** *optional* [^2] | Indicates how plasma is generated when the minimum QSR threshold is not reached. | `PoW`                    |
-| `MinQsrThreshold` **int** *optional*        | The minimum amount of QSR that must be fused to an address. Must be a value between `100` and `5000`. | `100`                      |
-| `FuseTimeout` **timespan** *optional*       | The maximum amount of time to wait for the fusion to complete. | `00:00:30`               |
+| `MinQsrThreshold` **int** *optional*        | The minimum amount of QSR that must be fused to an address. Must be a value between `1` and `5000`. | `100`                      |
+| `FuseTimeout` **timespan** *optional*       | The maximum amount of time to wait for the fusion to complete. | `00:01:00`               |
 
 [^1]: PoW is performed on the machine to generate plasma in order to send or receive transactions when the sending or receiving address does not have sufficient plasma.
 [^2]: The plasma-bot needs to be correctly configured with an API key in order to use plasma mode `Fuse` or `Both`.  

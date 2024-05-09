@@ -25,8 +25,10 @@ namespace ZenonWalletApi.Features.ValidateAddress
         /// <para>Requires User authorization policy</para>
         /// </remarks>
         /// <param name="address" example="z1qqjnwjjpnue8xmmpanz6csze6tcmtzzdtfsww7">The address to validate</param>
+        /// <param name="cancellationToken"></param>
         public static ValidateAddressResponse ValidateAddress(
-            string address)
+            string address,
+            CancellationToken cancellationToken = default)
         {
             try
             {

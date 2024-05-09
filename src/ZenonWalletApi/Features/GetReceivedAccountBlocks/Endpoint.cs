@@ -30,9 +30,10 @@ namespace ZenonWalletApi.Features.GetReceivedAccountBlocks
         public static async Task<JAccountBlockList> GetReceivedAccountBlocksAsync(
             INodeService client,
             [Validate] AddressString address,
-            [AsParameters][Validate] TransferReceived request)
+            [AsParameters][Validate] TransferReceived request,
+            CancellationToken cancellationToken = default)
         {
-            await client.ConnectAsync();
+            await client.ConnectAsync(cancellationToken);
 
             // Retrieve all received account blocks by address
             var result = await client.Api.Ledger

@@ -24,7 +24,8 @@ namespace ZenonWalletApi.Features.GetAutoReceiverStatus
         /// <para>Requires User authorization policy</para>
         /// </remarks>
         public static AutoReceiverStatusResponse GetAutoReceiverStatus(
-            IAutoReceiverService service)
+            IAutoReceiverService service,
+            CancellationToken cancellationToken = default)
         {
             return new AutoReceiverStatusResponse(service.IsEnabled);
         }
