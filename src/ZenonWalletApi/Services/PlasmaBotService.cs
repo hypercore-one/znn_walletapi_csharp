@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
-using System.Data;
 using System.Globalization;
 using System.Net;
 using Zenon.Model.Primitives;

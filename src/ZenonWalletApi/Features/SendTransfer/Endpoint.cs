@@ -108,7 +108,7 @@ namespace ZenonWalletApi.Features.SendTransfer
                 {
                     symbol = request.TokenStandard!.ToString();
                 }
-                    
+
                 throw new NotFoundException($"You do not have any {symbol} tokens");
             }
             else if (balanceInfo.Balance < amount)
