@@ -94,7 +94,22 @@ namespace ZenonWalletApi.Features.SendTransfer
             // Check balance
             if (balanceInfo == null)
             {
-                throw new NotFoundException($"You do not have any {request.TokenStandard} tokens");
+                string symbol;
+
+                if (request.TokenStandard == TokenStandard.ZnnZts)
+                {
+                    symbol = "ZNN";
+                }
+                else if (request.TokenStandard == TokenStandard.QsrZts)
+                {
+                    symbol = "QSR";
+                }
+                else
+                {
+                    symbol = request.TokenStandard!.ToString();
+                }
+                    
+                throw new NotFoundException($"You do not have any {symbol} tokens");
             }
             else if (balanceInfo.Balance < amount)
             {

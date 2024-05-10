@@ -2,8 +2,10 @@
 using Newtonsoft.Json.Linq;
 using System.Globalization;
 using System.Net;
+using System.Text.Json.Serialization;
 using Zenon.Model.Primitives;
 using ZenonWalletApi.Options;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ZenonWalletApi.Services
 {
@@ -34,23 +36,13 @@ namespace ZenonWalletApi.Services
 
         public async Task<DateTime?> GetExpirationAsync(Address address, CancellationToken cancellationToken = default)
         {
-            var response = await HttpClient.GetAsync($"expiration/{address}", cancellationToken);
+            var json = await HttpClient.GetFromJsonAsync<ExpirationDto>($"expiration/{address}", cancellationToken);
 
-            if (response.StatusCode == HttpStatusCode.OK)
+            if (json?.Data != null)
             {
                 try
                 {
-                    var json = await response.Content.ReadFromJsonAsync<JToken>(cancellationToken);
-
-                    if (json != null)
-                    {
-                        var data = json.Value<string?>("data");
-
-                        if (data != null)
-                        {
-                            return DateTime.ParseExact(data, DateTimeFormat, CultureInfo.InvariantCulture);
-                        }
-                    }
+                    return DateTime.ParseExact(json.Data, DateTimeFormat, CultureInfo.InvariantCulture);
                 }
                 catch (Exception e)
                 {
@@ -93,6 +85,11 @@ namespace ZenonWalletApi.Services
 
                 throw new HttpRequestException(message, null, statusCode);
             }
+        }
+
+        private record ExpirationDto
+        {
+            public string? Data { get; set; }
         }
     }
 }
