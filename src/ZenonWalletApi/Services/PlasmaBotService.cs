@@ -1,11 +1,10 @@
 ﻿using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
+using System.Data;
 using System.Globalization;
 using System.Net;
-using System.Text.Json.Serialization;
 using Zenon.Model.Primitives;
 using ZenonWalletApi.Options;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ZenonWalletApi.Services
 {
@@ -36,19 +35,22 @@ namespace ZenonWalletApi.Services
 
         public async Task<DateTime?> GetExpirationAsync(Address address, CancellationToken cancellationToken = default)
         {
-            var json = await HttpClient.GetFromJsonAsync<ExpirationDto>($"expiration/{address}", cancellationToken);
+            var response = await HttpClient.GetAsync($"expiration/{address}", cancellationToken);
 
-            if (json?.Data != null)
+            if (response.StatusCode == HttpStatusCode.OK)
             {
+                var json = await response.Content.ReadFromJsonAsync<ExpirationDto>(cancellationToken);
+
                 try
                 {
-                    return DateTime.ParseExact(json.Data, DateTimeFormat, CultureInfo.InvariantCulture);
+                    if (json?.Data != null)
+                    {
+                        return DateTime.ParseExact(json.Data, DateTimeFormat, CultureInfo.InvariantCulture);
+                    }
                 }
                 catch (Exception e)
                 {
                     Logger.LogWarning(e, "Failed to parse plasma-bot expiration response");
-
-                    throw;
                 }
             }
 
@@ -87,7 +89,7 @@ namespace ZenonWalletApi.Services
             }
         }
 
-        private record ExpirationDto
+        public record ExpirationDto
         {
             public string? Data { get; set; }
         }

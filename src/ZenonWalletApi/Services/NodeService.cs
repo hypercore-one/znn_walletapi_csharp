@@ -143,39 +143,53 @@ namespace ZenonWalletApi.Services
                         }
                         else
                         {
-                            var expiry = await PlasmaBot.GetExpirationAsync(address);
+                            try
+                            {
+                                var expiry = await PlasmaBot.GetExpirationAsync(address);
 
-                            // already fused
-                            if (expiry.HasValue)
-                            {
-                                Logger.LogWarning($"Cannot fuse twice for address: {address}");
+                                // already fused
+                                if (expiry.HasValue)
+                                {
+                                    Logger.LogWarning($"Cannot fuse twice for address: {address}");
+                                }
+                                else
+                                {
+                                    fuse = true;
+                                }
                             }
-                            else
+                            catch
                             {
-                                fuse = true;
+                                // ignore
                             }
                         }
 
                         if (fuse)
                         {
-                            await PlasmaBot.FuseAsync(address);
-
-                            var timeout = DateTime.UtcNow + Options.FuseTimeout;
-                            var initialQsrAmount = plasmaInfo.QsrAmount;
-
-                            // wait for timeout or fusion to complete
-                            while (timeout > DateTime.UtcNow &&
-                                !cancellationToken.IsCancellationRequested)
+                            try
                             {
-                                await Task.Delay(5000, cancellationToken);
+                                await PlasmaBot.FuseAsync(address);
 
-                                plasmaInfo = await Api.Embedded.Plasma.Get(address);
+                                var timeout = DateTime.UtcNow + Options.FuseTimeout;
+                                var initialQsrAmount = plasmaInfo.QsrAmount;
 
-                                // fused qsr has increased
-                                if (plasmaInfo.QsrAmount > initialQsrAmount)
+                                // wait for timeout or fusion to complete
+                                while (timeout > DateTime.UtcNow &&
+                                    !cancellationToken.IsCancellationRequested)
                                 {
-                                    break;
+                                    await Task.Delay(5000, cancellationToken);
+
+                                    plasmaInfo = await Api.Embedded.Plasma.Get(address);
+
+                                    // fused qsr has increased
+                                    if (plasmaInfo.QsrAmount > initialQsrAmount)
+                                    {
+                                        break;
+                                    }
                                 }
+                            }
+                            catch
+                            {
+                                // ignore
                             }
                         }
                     }
