@@ -221,8 +221,10 @@ namespace ZenonWalletApi.Services
 
         private async Task ProcessBlockQueueAsync(CancellationToken cancellationToken)
         {
+            var tasks = new List<Task>();
+
             while (!cancellationToken.IsCancellationRequested &&
-                blockQueue.TryPeek(out var blockHash))
+                blockQueue.TryDequeue(out var blockHash))
             {
                 try
                 {
@@ -237,21 +239,43 @@ namespace ZenonWalletApi.Services
 
                         var block = AccountBlockTemplate.Receive(Node.ProtocolVersion, Node.ChainIdentifier, blockHash);
 
-                        await Node.SendAsync(block, account);
-                    }
+                        tasks.Add(Node.SendAsync(block, account, cancellationToken).ContinueWith(task =>
+                        {
+                            try
+                            {
+                                _ = task.Result;
+                            }
+                            catch (AggregateException ex)
+                            {
+                                ex.Handle(x =>
+                                {
+                                    Logger.LogWarning(x.Message);
 
-                    blockQueue.TryDequeue(out _);
+                                    if (x is RemoteInvocationException &&
+                                        x.Message.Contains("already received"))
+                                    {
+                                        // no-op
+                                    }
+                                    else
+                                    {
+                                        blockQueue.Enqueue(blockHash);
+                                    }
+
+                                    return true;
+                                });
+                            }
+                        }, TaskScheduler.Default));
+                    }
                 }
-                catch (RemoteInvocationException e)
+                catch
                 {
-                    Logger.LogWarning(e.Message);
+                    blockQueue.Enqueue(blockHash);
 
-                    if (e.Message.Contains("already received"))
-                    {
-                        blockQueue.TryDequeue(out _);
-                    }
+                    throw;
                 }
             }
+
+            await Task.WhenAll(tasks.ToArray());
         }
 
         private bool HasAccount(Address address)
