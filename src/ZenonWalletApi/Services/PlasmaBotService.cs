@@ -15,7 +15,7 @@ namespace ZenonWalletApi.Services
 
     internal class PlasmaBotService : IPlasmaBotService
     {
-        private const string DateTimeFormat = "yyyy-dd-MM HH:mm:ss";
+        private const string DateTimeFormat = "yyyy-MM-dd HH:mm:ss";
 
         public PlasmaBotService(ILogger<PlasmaBotService> logger, IOptions<PlasmaBotOptions> options, HttpClient httpClient)
         {
